@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./db.js";
 import authRoutes from "./routes/auth.js";
+import courseRoutes from "./routes/courses.js";
+import assessmentRoutes from "./routes/assessments.js";
 
 const port = process.env.PORT || 8080;
 const app = express();
@@ -14,6 +16,12 @@ app.use(express.json());
 
 // Auth routes
 app.use("/api/auth", authRoutes);
+
+// Courses routes
+app.use("/api/courses", courseRoutes);
+
+// assessment routes
+app.use("/api/assessments", assessmentRoutes);
 
 connectDB();
 

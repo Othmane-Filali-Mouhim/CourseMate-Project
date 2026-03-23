@@ -1,4 +1,5 @@
-// Instructor Analytics
+const token = localStorage.getItem("token");
+const BASE_URL = "http://localhost:8000/api";
 
 // Profile dropdown
 const menu = document.querySelector(".profile-menu");
@@ -9,7 +10,6 @@ if (menu && dropdown) {
     dropdown.classList.toggle("open");
     e.stopPropagation();
   });
-
   document.addEventListener("click", (e) => {
     if (!menu.contains(e.target)) dropdown.classList.remove("open");
   });
@@ -19,94 +19,83 @@ const filterSelect = document.getElementById("courseFilter");
 const summaryEl = document.getElementById("analyticsSummary");
 const rowsEl = document.getElementById("courseStatsRows");
 
-function pctOrDash(x) {
-  if (x === null || x === undefined || Number.isNaN(x)) return "--%";
-  return `${Math.round(x)}%`;
-}
 
-function computeTotals(list) {
-  const enabledCourses = list.filter(c => c.enabled !== false);
-  const all = enabledCourses.flatMap(c => c.assessments || []);
-  const total = all.length;
-  const completed = all.filter(a => a.completed).length;
+//store the course in array
+let allCourses = [];
+let allAssessments = {}; // store { courseId: [assessments] }
 
-  const completionPct = total === 0 ? 0 : (completed / total) * 100;
-
-  // overall avg weighted
-  let weightSum = 0;
-  let scoreSum = 0;
-  enabledCourses.forEach(c => {
-    (c.assessments || []).forEach(a => {
-      if (typeof a.gradePct !== "number" || Number.isNaN(a.gradePct)) return;
-      const w = Number(a.weightPct);
-      if (Number.isNaN(w)) return;
-      weightSum += w;
-      scoreSum += a.gradePct * w;
-    });
+// ----- FETCH -----
+async function loadData() {
+  // 1. fetch all courses
+  const courseRes = await fetch(`${BASE_URL}/courses`, {
+    headers: { Authorization: `Bearer ${token}` }
   });
+  allCourses = await courseRes.json();
 
-  const overallAvg = weightSum === 0 ? null : scoreSum / weightSum;
+  // 2. fetch assessments for each course
+  await Promise.all(allCourses.map(async (course) => {
+    const res = await fetch(`${BASE_URL}/assessments/${course._id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    allAssessments[course._id] = data;
+  }));
 
-  return {
-    totalCourses: list.length,
-    enabledCourses: enabledCourses.length,
-    totalAssessments: total,
-    completedAssessments: completed,
-    completionPct,
-    overallAvg
-  };
+  renderFilterOptions();
+  renderSummary();
+  renderTable();
 }
 
+// ----- FILTER -----
+function getFilteredCourses() {
+  const v = filterSelect?.value || "all";
+  if (v === "all") return allCourses;
+  return allCourses.filter(c => c._id === v);
+}
+
+// ----- FILTER OPTIONS -----
 function renderFilterOptions() {
-  if (!filterSelect) return;
-
-  // reset
   filterSelect.innerHTML = '<option value="all">All courses</option>';
-
-  (courses || []).forEach(c => {
+  allCourses.forEach(c => {
     const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = `${c.code} — ${c.name}`;
+    opt.value = c._id;
+    opt.textContent = `${c.courseCode} — ${c.name}`;
     filterSelect.appendChild(opt);
   });
 }
 
-function getFilteredCourses() {
-  const v = filterSelect?.value || "all";
-  if (v === "all") return courses || [];
-  return (courses || []).filter(c => c.id === v);
-}
-
+// ----- SUMMARY CARDS -----
 function renderSummary() {
-  if (!summaryEl) return;
-
   const list = getFilteredCourses();
-  const t = computeTotals(list);
+  const enabled = list.filter(c => c.isActive).length;
+  const total = list.length;
+
+  const allAssessmentsFlat = list.flatMap(c => allAssessments[c._id] || []);
+  const assessmentCount = allAssessmentsFlat.length;
 
   summaryEl.innerHTML = `
     <div class="summary-card">
       <p class="label">Courses</p>
-      <h2 class="value">${t.enabledCourses}/${t.totalCourses}</h2>
+      <h2 class="value">${enabled}/${total}</h2>
       <p class="hint">Enabled / Total</p>
     </div>
 
     <div class="summary-card">
-      <p class="label">Completion</p>
-      <h2 class="value">${pctOrDash(t.completionPct)}</h2>
-      <p class="hint">${t.completedAssessments}/${t.totalAssessments} completed</p>
+      <p class="label">Assessments</p>
+      <h2 class="value">${assessmentCount}</h2>
+      <p class="hint">Across selected courses</p>
     </div>
 
     <div class="summary-card">
       <p class="label">Overall Avg</p>
-      <h2 class="value">${pctOrDash(t.overallAvg)}</h2>
-      <p class="hint">Weighted by assessment weights</p>
+      <h2 class="value">--</h2>
+      <p class="hint">Available once students enroll</p>
     </div>
   `;
 }
 
+// ----- TABLE -----
 function renderTable() {
-  if (!rowsEl) return;
-
   const list = getFilteredCourses();
 
   if (list.length === 0) {
@@ -115,28 +104,24 @@ function renderTable() {
   }
 
   rowsEl.innerHTML = list.map(course => {
-    const enabled = course.enabled !== false;
-    const assessments = course.assessments || [];
-    const completed = assessments.filter(a => a.completed).length;
-    const avg = window.CourseMate?.computeCourseAverage?.(course);
-
+    const assessments = allAssessments[course._id] || [];
     return `
       <tr>
-        <td>${course.code} — ${course.name}</td>
-        <td>${enabled ? "Yes" : "No"}</td>
+        <td>${course.courseCode} — ${course.name}</td>
+        <td>${course.isActive ? "Yes" : "No"}</td>
         <td>${assessments.length}</td>
-        <td>${completed}/${assessments.length}</td>
-        <td>${pctOrDash(avg)}</td>
+        <td>--</td>
+        <td>--</td>
       </tr>
     `;
   }).join("");
 }
 
+// ----- FILTER CHANGE -----
 filterSelect?.addEventListener("change", () => {
   renderSummary();
   renderTable();
 });
 
-renderFilterOptions();
-renderSummary();
-renderTable();
+// ----- INIT -----
+loadData();

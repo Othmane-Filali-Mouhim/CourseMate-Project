@@ -1,157 +1,195 @@
-// for profile menu dropdown.
+const token = localStorage.getItem("token");
+const BASE_URL = "http://localhost:8000/api/courses";
+
+// Profile dropdown
 const menu = document.querySelector(".profile-menu");
 const dropdown = document.querySelector(".profile-dropdown");
-
 menu.addEventListener("click", (e) => {
   dropdown.classList.toggle("open");
   e.stopPropagation();
 });
-
-document.addEventListener('click', (e) =>{
-
-    if(!menu.contains(e.target)){
-        dropdown.classList.remove("open");
-    }
-
+document.addEventListener("click", (e) => {
+  if (!menu.contains(e.target)) dropdown.classList.remove("open");
 });
 
-// js/instructor-courses.js
-// NOTE: courses comes from data1.js (do NOT redeclare it)
-
-const coursesList = document.getElementById("coursesList");
+// Modal elements
 const modal = document.getElementById("courseModal");
 const form = document.getElementById("courseForm");
-const editIdInput = document.getElementById("editId");
 const idInput = document.getElementById("courseIdInput");
 const nameInput = document.getElementById("courseNameInput");
 const termInput = document.getElementById("courseTermInput");
-const modalTitle = document.getElementById("modalTitle");
 
-// OPEN MODAL
+// OPEN modal
 document.getElementById("addCourseBtn").addEventListener("click", () => {
-  modalTitle.textContent = "Add Course";
   form.reset();
-  editIdInput.value = "";
   modal.classList.add("show");
 });
 
-// CLOSE MODAL
+// CLOSE modal
 document.getElementById("cancelBtn").addEventListener("click", () => {
   modal.classList.remove("show");
 });
 
-// SAVE COURSE
-form.addEventListener("submit", function (e) {
+// SUBMIT - add course
+form.addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const editId = editIdInput.value;
+  const editId = form.dataset.editId;
 
-  if (editId) {
-  for (let i = 0; i < courses.length; i++) {
-    if (courses[i].id === editId) {
-      courses[i].code = idInput.value;
-      courses[i].name = nameInput.value;
-      courses[i].term = termInput.value;
-      break;
-    }
-  }
-} else {
-  courses.push({
-    id: Date.now().toString(),
-    code: idInput.value,
-    name: nameInput.value,
-    term: termInput.value,
-    enabled: true,
-    structure: []
+  const url = editId 
+    ? `${BASE_URL}/${editId}`   // update
+    : BASE_URL;                 // create
+
+  const method = editId ? "PUT" : "POST";
+
+  const response = await fetch(url, {
+    method: method,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      courseCode: idInput.value,
+      name: nameInput.value,
+      term: termInput.value
+    })
   });
-}
 
-  modal.classList.remove("show");
-  renderCourses();
+  const data = await response.json();
+
+  if (response.ok) {
+    alert(editId ? "Course updated!" : "Course created!");
+    
+    modal.classList.remove("show");
+    form.reset();
+    delete form.dataset.editId; // 🔥 IMPORTANT: reset mode
+
+    await fetchCourses();
+  } else {
+    alert(data.message);
+  }
 });
-
-// RENDER COURSES
-function renderCourses() {
+let currentCourses = [];
+// fetch all the courses
+async function fetchCourses() {
+  try {
+    const response = await fetch(BASE_URL, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    const data = await response.json();
+    console.log("Courses:", data);
+    currentCourses = data;
+    renderCourses(data);
+  } catch (error) {
+    console.log("Error fetching courses:", error);
+  }
+}
+// RENDER courses on the page
+function renderCourses(courses) {
   coursesList.innerHTML = "";
+
+  if (!courses || courses.length === 0) {
+    coursesList.innerHTML = "<p>No courses yet. Click 'Add Course' to get started!</p>";
+    return;
+  }
 
   courses.forEach(course => {
     const card = document.createElement("div");
     card.classList.add("course-card");
-
     card.innerHTML = `
       <div class="course-info">
-        <h3>${course.code} - ${course.name}</h3>
+        <h3>${course.courseCode} - ${course.name}</h3>
         <p>${course.term}</p>
-        <p>Status: ${course.enabled ? "Enabled" : "Disabled"}</p>
+        <p>Status: ${course.isActive ? "Enabled" : "Disabled"}</p>
       </div>
-
       <div class="course-actions">
-       <button class="secondary-btn edit-btn" data-id="${course.id}" type="button">Edit</button>
-<button class="secondary-btn toggle-btn" data-id="${course.id}" type="button">
-  ${course.enabled ? "Disable" : "Enable"}
-</button>
-<button class="danger-btn delete-btn" data-id="${course.id}" type="button">Delete</button>
+        <button class="secondary-btn edit-btn" data-id="${course._id}" type="button">Edit</button>
+        <button class="secondary-btn toggle-btn" data-id="${course._id}" type="button">
+          ${course.isActive ? "Disable" : "Enable"}
+        </button>
+        <button class="danger-btn delete-btn" data-id="${course._id}" type="button">Delete</button>
       </div>
     `;
-
     coursesList.appendChild(card);
   });
 }
-  // action
-coursesList.addEventListener("click", function (e) {
-  // TOGGLE
-  const toggleBtn = e.target.closest(".toggle-btn");
-  if (toggleBtn) {
-    const id = toggleBtn.dataset.id;
 
-    for (let i = 0; i < courses.length; i++) {
-      if (courses[i].id === id) {
-        courses[i].enabled = !courses[i].enabled;
-        break;
-      }
-    }
+document.addEventListener("click", async (e) => {
 
-    renderCourses();
-    return;
-  }
+  //  EDIT
+  if (e.target.classList.contains("edit-btn")) {
+    const id = e.target.dataset.id;
 
-  // DELETE
-  const deleteBtn = e.target.closest(".delete-btn");
-  if (deleteBtn) {
-    const id = deleteBtn.dataset.id;
-
-    const ok = confirm("Delete this course?");
-    if (!ok) return;
-
-    for (let i = 0; i < courses.length; i++) {
-      if (courses[i].id === id) {
-        courses.splice(i, 1);
-        break;
-      }
-    }
-
-    renderCourses();
-    return;
-  }
-
-  // EDIT
-  const editBtn = e.target.closest(".edit-btn");
-  if (editBtn) {
-    const id = editBtn.dataset.id;
-
-    const course = courses.find(c => c.id === id);
+    const course = currentCourses.find(c => c._id === id);
     if (!course) return;
 
-    modalTitle.textContent = "Edit Course";
-    editIdInput.value = course.id;
-    idInput.value = course.code;
+    idInput.value = course.courseCode;
     nameInput.value = course.name;
     termInput.value = course.term;
 
-    modal.classList.add("show"); // keep your current css logic
-    return;
+    form.dataset.editId = id;
+
+    modal.classList.add("show");
   }
+
+  //  DELETE
+  if (e.target.classList.contains("delete-btn")) {
+    const id = e.target.dataset.id;
+
+    const confirmDelete = confirm("Delete this course?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`${BASE_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message);
+      }
+
+      await fetchCourses();
+
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  // 🔁 TOGGLE ENABLE/DISABLE
+  if (e.target.classList.contains("toggle-btn")) {
+    const id = e.target.dataset.id;
+
+    try {
+      const response = await fetch(`${BASE_URL}/${id}/toggle`, {
+        method: "PATCH",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message);
+      }
+
+      await fetchCourses();
+
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
 });
 
-// initial render
-renderCourses();
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("role");
+  window.location.href = "index.html";
+}
+
+window.onload = fetchCourses;

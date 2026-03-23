@@ -1,4 +1,7 @@
-// for profile menu dropdown.
+const token = localStorage.getItem("token");
+const BASE_URL = "http://localhost:8000/api";
+
+// ----- Profile dropdown -----
 const menu = document.querySelector(".profile-menu");
 const dropdown = document.querySelector(".profile-dropdown");
 
@@ -7,117 +10,82 @@ menu.addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
-document.addEventListener('click', (e) =>{
-
-    if(!menu.contains(e.target)){
-        dropdown.classList.remove("open");
-    }
-
+document.addEventListener("click", (e) => {
+  if (!menu.contains(e.target)) dropdown.classList.remove("open");
 });
 
-// ----- Get course by query param -----
-const params = new URLSearchParams(window.location.search);
-const courseId = params.get("course");
+// ----- GLOBAL STATE -----
+let selectedCourse = null;
+let categories = [];
 
-let currentCourse = (courses || []).find(c => c.id === courseId) || (courses || [])[0];
-
-// If no courses exist
-if (!currentCourse) {
-  document.getElementById("categoriesList").innerHTML = "<p>No courses found in data.js</p>";
-  throw new Error("No courses found.");
-}
-
-// categories for this course
-let categories = currentCourse.assessments || [];
-
-// ----- DOM refs -----
+// ----- DOM -----
 const categoriesList = document.getElementById("categoriesList");
 const modal = document.getElementById("categoryModal");
 const form = document.getElementById("categoryForm");
 const nameInput = document.getElementById("categoryNameInput");
 const weightInput = document.getElementById("categoryWeightInput");
+const dueDateInput = document.getElementById("categoryDueDateInput");
 const editIdInput = document.getElementById("editCategoryId");
 const totalWeightEl = document.getElementById("totalWeight");
 const weightWarning = document.getElementById("weightWarning");
 const modalTitle = document.getElementById("modalTitle");
 
-// Optional: show course name in header
-const headerH1 = document.querySelector(".page-header h1");
-if (headerH1) headerH1.textContent = `Assessment Structure — ${currentCourse.code}`;
+// ----- LOAD COURSES -----
+async function loadCourses() {
+  try {
+    const response = await fetch(`${BASE_URL}/courses`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await response.json();
 
-// ----- Course selector (injected) -----
-(function injectCoursePicker() {
-  const header = document.querySelector(".page-header");
-  if (!header) return;
+    const courseSelectList = document.getElementById("courseSelectList");
 
-  const wrapper = document.createElement("div");
-  wrapper.style.display = "flex";
-  wrapper.style.alignItems = "center";
-  wrapper.style.gap = "10px";
+    if (!data || data.length === 0) {
+      courseSelectList.innerHTML = "<p>No courses found</p>";
+      return;
+    }
 
-  const label = document.createElement("span");
-  label.textContent = "Course:";
+    courseSelectList.innerHTML = "";
 
-  const select = document.createElement("select");
-  select.id = "coursePicker";
-  select.style.border = "1px solid #d8e5ff";
-  select.style.padding = "6px 10px";
-  
+    data.forEach(course => {
+      const btn = document.createElement("button");
+      btn.classList.add("course-select-btn");
+      btn.textContent = `${course.courseCode} — ${course.name}`;
+      btn.onclick = () => selectCourse(course);
+      courseSelectList.appendChild(btn);
+    });
 
-  (courses || []).forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = `${c.code} — ${c.name}`;
-    if (c.id === currentCourse.id) opt.selected = true;
-    select.appendChild(opt);
-  });
-
-  select.addEventListener("change", () => {
-    window.location.href = `instructor-assessment.html?course=${encodeURIComponent(select.value)}`;
-  });
-
-  wrapper.appendChild(label);
-  wrapper.appendChild(select);
-
-  // Put it next to the "Add Category" button area if possible
-  header.appendChild(wrapper);
-})();
-// ----- Helpers -----
-function openModalForAdd() {
-  modalTitle.textContent = "Add Category";
-  form.reset();
-  editIdInput.value = "";
-  modal.classList.add("show");
-}
-
-function openModalForEdit(cat) {
-  modalTitle.textContent = "Edit Category";
-  editIdInput.value = cat.id;
-  nameInput.value = cat.name;
-  weightInput.value = cat.weight;
-  modal.classList.add("show");
-}
-
-function closeModal() {
-  modal.classList.remove("show");
-}
-
-
-function updateTotalWeight() {
-  const total = categories.reduce((sum, c) => sum + Number(c.weightPct || 0), 0);
-  totalWeightEl.textContent = total;
-
-  if (total !== 100) {
-    weightWarning.textContent = "⚠ Total weight must equal 100%";
-    weightWarning.style.color = "#DC2626";
-  } else {
-    weightWarning.textContent = "✔ Total weight is valid";
-    weightWarning.style.color = "#059669";
+  } catch (error) {
+    console.error("ERROR:", error);
   }
 }
 
+// ----- SELECT COURSE -----
+async function selectCourse(course) {
+  selectedCourse = course;
+
+  const response = await fetch(`${BASE_URL}/assessments/${course._id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await response.json();
+  categories = data;
+
+  document.getElementById("courseSelectModal").classList.remove("show");
+  document.getElementById("pageTitle").textContent =
+    `Assessment Structure — ${course.courseCode} - ${course.name}`;
+
+  renderCategories();
+}
+
+// ----- RENDER -----
 function renderCategories() {
   categoriesList.innerHTML = "";
+
+  if (categories.length === 0) {
+    categoriesList.innerHTML = "<p>No assessments yet. Click 'Add Category' to get started!</p>";
+    updateTotalWeight();
+    return;
+  }
 
   categories.forEach(cat => {
     const card = document.createElement("div");
@@ -125,13 +93,13 @@ function renderCategories() {
 
     card.innerHTML = `
       <div>
-        <h4>${cat.name}</h4>
-        <p>${cat.weightPct}%</p>
+        <h4>${cat.title}</h4>
+        <p>${cat.weight}%</p>
+        <p>Due: ${cat.dueDate ? new Date(cat.dueDate).toLocaleDateString() : "No due date"}</p>
       </div>
-
       <div>
-        <button class="edit-btn" data-id="${cat.id}">Edit</button>
-        <button class="delete-btn" data-id="${cat.id}">Delete</button>
+        <button class="edit-btn" data-id="${cat._id}">Edit</button>
+        <button class="delete-btn" data-id="${cat._id}">Delete</button>
       </div>
     `;
 
@@ -141,53 +109,123 @@ function renderCategories() {
   updateTotalWeight();
 }
 
-// ----- Events -----
-document.getElementById("addCategoryBtn").addEventListener("click", openModalForAdd);
+// ----- WEIGHT CHECK -----
+function updateTotalWeight() {
+  const total = categories.reduce((sum, c) => sum + Number(c.weight || 0), 0);
+  totalWeightEl.textContent = total;
 
+  if (total !== 100) {
+    weightWarning.textContent = "⚠ Total must be 100%";
+    weightWarning.style.color = "red";
+  } else {
+    weightWarning.textContent = "✔ Total weight is valid";
+    weightWarning.style.color = "green";
+  }
+}
+
+// ----- MODAL -----
+function openModalForAdd() {
+  if (!selectedCourse) {
+    alert("Select a course first");
+    return;
+  }
+  modalTitle.textContent = "Add Category";
+  form.reset();
+  editIdInput.value = "";
+  modal.classList.add("show");
+}
+
+function openModalForEdit(cat) {
+  modalTitle.textContent = "Edit Category";
+  editIdInput.value = cat._id;
+  nameInput.value = cat.title;
+  weightInput.value = cat.weight;
+  dueDateInput.value = cat.dueDate ? cat.dueDate.split("T")[0] : "";
+  modal.classList.add("show");
+}
+
+function closeModal() {
+  modal.classList.remove("show");
+}
+
+// ----- EVENTS -----
+document.getElementById("addCategoryBtn").addEventListener("click", openModalForAdd);
 document.getElementById("cancelBtn").addEventListener("click", closeModal);
 
-// SAVE (Add/Edit)
-form.addEventListener("submit", function (e) {
+// change course button
+document.getElementById("changeCourseBtn").addEventListener("click", () => {
+  document.getElementById("courseSelectModal").classList.add("show");
+});
+
+// SUBMIT
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const editId = editIdInput.value;
-  const newName = nameInput.value.trim();
-  const newWeight = Number(weightInput.value);
+  const title = nameInput.value.trim();
+  const weight = Number(weightInput.value);
+  const dueDate = dueDateInput.value;
 
   if (editId) {
-    // EDIT MODE
-    categories = categories.map(cat =>
-      cat.id === editId ? { ...cat, name: newName, weight: newWeight } : cat
-    );
-  } else {
-    // ADD MODE
-    categories.push({
-      id: Date.now().toString(),
-      name: newName,
-      weight: newWeight
+    // UPDATE
+    const response = await fetch(`${BASE_URL}/assessments/${editId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ title, weight, dueDate })
     });
+    const updated = await response.json();
+    categories = categories.map(cat => cat._id === editId ? updated : cat);
+
+  } else {
+    // CREATE
+    const response = await fetch(`${BASE_URL}/assessments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        courseId: selectedCourse._id,
+        title,
+        weight,
+        dueDate,
+        category: "assignment",
+        totalMarks: 100,
+      })
+    });
+    const data = await response.json();
+    categories.push(data.assessment);
   }
 
-  syncToCourse();
   closeModal();
   renderCategories();
 });
 
-// Edit/Delete buttons (delegation)
-categoriesList.addEventListener("click", function (e) {
+// EDIT / DELETE
+categoriesList.addEventListener("click", (e) => {
   const id = e.target.dataset.id;
 
   if (e.target.classList.contains("edit-btn")) {
-    const cat = categories.find(c => c.id === id);
+    const cat = categories.find(c => c._id === id);
     if (cat) openModalForEdit(cat);
   }
 
   if (e.target.classList.contains("delete-btn")) {
-    categories = categories.filter(c => c.id !== id);
-    syncToCourse();
-    renderCategories();
+    deleteAssessment(id);
   }
 });
 
-// initial render
-renderCategories();
+async function deleteAssessment(id) {
+  await fetch(`${BASE_URL}/assessments/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  categories = categories.filter(c => c._id !== id);
+  renderCategories();
+}
+
+// ----- INIT -----
+loadCourses();

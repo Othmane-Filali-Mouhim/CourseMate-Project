@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Assessment Structure</title>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <link rel="stylesheet" href="css/instructor-assessment.css">
@@ -13,23 +13,15 @@
 <body>
     <nav class="navbar">
         <ul>
-            <li class="left"><a href="instructor-dashboard.html"><span class="material-symbols-outlined">
-                        school</span></a>
-                <a href="instructor-dashboard.html" id="title">
-                    <h3>CourseMate</h3>
-                </a>
+            <li class="left">
+                <a href="instructor-dashboard.html"><span class="material-symbols-outlined">school</span></a>
+                <a href="instructor-dashboard.html" id="title"><h3>CourseMate</h3></a>
             </li>
-
             <li class="center">
                 <a href="instructor-dashboard.html" class="dashboard-back">Dashboard</a>
             </li>
-
-
             <li id="drop-down-menu" class="profile-menu">
-                <span class="material-symbols-outlined profile-icon">
-                    account_circle
-                </span>
-
+                <span class="material-symbols-outlined profile-icon">account_circle</span>
                 <div class="profile-dropdown">
                     <a href="profile.html">Profile</a>
                     <a href="index.html">Logout</a>
@@ -37,47 +29,60 @@
             </li>
         </ul>
     </nav>
-    
 
     <section class="page-header">
-  <h1>Assessment Structure</h1>
-  <button class="primary-btn" id="addCategoryBtn">
-    <span class="material-symbols-outlined">add</span>
-    Add Category
-  </button>
-</section>
+        <h1 id="pageTitle">Assessment Structure</h1>
+        <div style="display:flex; gap:10px;">
+            <button class="primary-btn" id="changeCourseBtn">Change Course</button>
+            <button class="primary-btn" id="addCategoryBtn">
+                <span class="material-symbols-outlined">add</span>
+                Add Assessment
+            </button>
+        </div>
+    </section>
 
-<section class="categories-list" id="categoriesList">
-  <!-- Categories appear here -->
-</section>
+    <section class="categories-list" id="categoriesList">
+        <!-- Assessments appear here -->
+    </section>
 
-<section class="weight-summary">
-  <h3>Total Weight: <span id="totalWeight">0</span>%</h3>
-  <p id="weightWarning"></p>
-</section>
+    <section class="weight-summary">
+        <h3>Total Weight: <span id="totalWeight">0</span>%</h3>
+        <p id="weightWarning"></p>
+    </section>
 
-<!-- Modal -->
-<div class="modal hidden" id="categoryModal">
-  <div class="modal-card">
-    <h2 id="modalTitle">Add Category</h2>
+    <!-- Assessment Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-card">
+            <h2 id="modalTitle">Add Assessment</h2>
+            <form id="categoryForm">
+                <input type="hidden" id="editCategoryId">
 
-    <form id="categoryForm">
-      <input type="hidden" id="editCategoryId">
+                <label>Category Name</label>
+                <input type="text" id="categoryNameInput" required>
 
-      <label>Category Name</label>
-      <input type="text" id="categoryNameInput" required>
+                <label>Weight (%)</label>
+                <input type="number" id="categoryWeightInput" required min="0" max="100">
 
-      <label>Weight (%)</label>
-      <input type="number" id="categoryWeightInput" required min="0" max="100">
+                <label>Due Date</label>
+                <input type="date" id="categoryDueDateInput">
 
-      <div class="modal-actions">
-        <button type="button" id="cancelBtn">Cancel</button>
-        <button type="submit">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-<script src="js/data.js"></script>
+                <div class="modal-actions">
+                    <button type="button" id="cancelBtn">Cancel</button>
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Course Selector Modal -->
+    <div class="modal show" id="courseSelectModal">
+        <div class="modal-card">
+            <h2>Select a Course</h2>
+            <div id="courseSelectList"></div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
     <script src="js/instructor-assessment.js"></script>
 </body>
 
