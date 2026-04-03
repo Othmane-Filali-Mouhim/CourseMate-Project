@@ -82,7 +82,6 @@ router.patch("/:id/toggle", protect, async (req, res) => {
 });
 
 // ===== STUDENT ROUTES =====
-// IMPORTANT: /search and /enrolled must be BEFORE /:id
 
 // SEARCH active courses by code or name
 router.get("/search", protect, async (req, res) => {
