@@ -1,6 +1,13 @@
-// Student Assessments Page
+const token = localStorage.getItem("token");
+const BASE_URL = "http://localhost:8000/api";
 
-// Profile dropdown
+const params = new URLSearchParams(window.location.search);
+let courseId = params.get("courseId");
+
+let studentAssessments = [];
+let templates = [];
+
+// ----- Profile dropdown -----
 const menu = document.querySelector(".profile-menu");
 const dropdown = document.querySelector(".profile-dropdown");
 
@@ -8,352 +15,285 @@ menu.addEventListener("click", (e) => {
   dropdown.classList.toggle("open");
   e.stopPropagation();
 });
-
 document.addEventListener("click", (e) => {
   if (!menu.contains(e.target)) dropdown.classList.remove("open");
 });
 
-// ----- Get selected course -----
-const params = new URLSearchParams(window.location.search);
-const courseId = params.get("course");
-let selectedCourse = null;
-
-for (let i = 0; i < courses.length; i++) {
-  if (courses[i].id === courseId) {
-    selectedCourse = courses[i];
-    break;
-  }
-}
-
-const courseTitleEl = document.getElementById("courseTitle");
-const assessmentRowsEl = document.getElementById("assessmentRows");
-const avgValueEl = document.getElementById("avgValue");
-const progressBarEl = document.getElementById("progressBar");
-const progressTextEl = document.getElementById("progressText");
-
-if (selectedCourse) {
-  courseTitleEl.textContent = selectedCourse.code + " — " + selectedCourse.name;
-} else {
-  courseTitleEl.textContent = "No course selected";
-}
-
-
-// ----- Selection -----
-let selectedAssessmentId = "";
-
-// ----- Modal (your current HTML structure) -----
-const addAssessmentBtn = document.getElementById("btnAddAssessment");
-const editAssessmentBtn = document.getElementById("btnEditAssessment");
+// ----- DOM -----
+const courseTitle = document.getElementById("courseTitle");
+const assessmentRows = document.getElementById("assessmentRows");
+const templateRows = document.getElementById("templateRows");
 const popup = document.getElementById("assessmentFormPopup");
 const form = document.getElementById("btnAddAssessmentForm");
 const cancelBtn = document.getElementById("cancelCourseForm");
+const addBtn = document.getElementById("btnAddAssessment");
+const modalTitle = document.getElementById("modalTitle");
+const courseSelectModal = document.getElementById("courseSelectModal");
+const courseSelectList = document.getElementById("courseSelectList");
 
-const modalTitleEl = popup.querySelector("h3");
-const formInputs = form.querySelectorAll("input");
-const statusSelect = form.querySelector("select");
-
-// inputs by order in your HTML:
-// 0: name (text)
-// 1: due (date)
-// 2: grade (text)
-// 3: weight (text)
-const nameInput = formInputs[0];
-const dueInput = formInputs[1];
-const gradeInput = formInputs[2];
-const weightInput = formInputs[3];
+const nameInput = form.querySelector('input[name="aname"]');
+const dueInput = form.querySelector('input[name="due"]');
+const gradeInput = form.querySelector('input[name="grade"]');
+const weightInput = form.querySelector('input[name="weight"]');
+const statusSelect = form.querySelector('select[name="status"]');
 
 let editingId = "";
 
-// Helpers
-function formatDate(iso) {
-  if (!iso) return "—";
-  const d = new Date(iso + "T00:00:00");
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-}
+// ----- LOAD DATA -----
+async function loadData() {
+  const courseRes = await fetch(`${BASE_URL}/courses/enrolled`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const courses = await courseRes.json();
 
-function computeCourseAverage(course) {
-  let sum = 0;
-  let sumW = 0;
-
-  for (let i = 0; i < course.assessments.length; i++) {
-    const a = course.assessments[i];
-
-    if (typeof a.gradePct === "number" && !Number.isNaN(a.gradePct)) {
-      if (typeof a.weightPct === "number" && !Number.isNaN(a.weightPct)) {
-        sum += a.gradePct * a.weightPct;
-        sumW += a.weightPct;
-      }
-    }
-  }
-
-  if (sumW === 0) return null;
-  return sum / sumW;
-}
-
-function computeCourseProgress(course) {
-  const total = course.assessments.length;
-  let completed = 0;
-
-  for (let i = 0; i < total; i++) {
-    if (course.assessments[i].completed) completed++;
-  }
-
-  let percent = 0;
-  if (total > 0) percent = Math.round((completed / total) * 100);
-
-  return { completed: completed, total: total, percent: percent };
-}
-
-// Render
-function renderStats() {
- 
-
-  const avg = computeCourseAverage(selectedCourse);
-  if (avg === null) avgValueEl.textContent = "--%";
-  else avgValueEl.textContent = String(Math.round(avg)) + "%";
-
-  const prog = computeCourseProgress(selectedCourse);
-  progressBarEl.style.width = String(prog.percent) + "%";
-  progressTextEl.textContent = String(prog.completed) + "/" + String(prog.total);
-}
-
-function renderTable() {
-  
-  const list = selectedCourse.assessments;
-
-  if (list.length === 0) {
-    assessmentRowsEl.innerHTML = `
-      <tr>
-        <td colspan="5">No assessments yet. Click “+ Add Assessment”.</td>
-      </tr>
-    `;
+  // populate course selector modal
+  courseSelectList.innerHTML = "";
+  if (!courses || courses.length === 0) {
+    courseSelectList.innerHTML = "<p>No enrolled courses found.</p>";
     return;
   }
 
-  let html = "";
+  courses.forEach(course => {
+    const btn = document.createElement("button");
+    btn.classList.add("course-select-btn");
+    btn.textContent = `${course.courseCode} — ${course.name}`;
+    btn.onclick = () => {
+      courseId = course._id;
+      window.history.pushState({}, "", `?courseId=${course._id}`);
+      courseSelectModal.classList.remove("show");
+      loadCourseData(course);
+    };
+    courseSelectList.appendChild(btn);
+  });
 
-  for (let i = 0; i < list.length; i++) {
-    const a = list[i];
-
-    let statusText = "Pending";
-    if (a.completed) statusText = "Completed";
-
-    let checkedAttr = "";
-    if (a.completed) checkedAttr = "checked";
-
-    let gradeText = "";
-    if (typeof a.gradePct === "number") gradeText = String(a.gradePct);
-
-    let weightText = "";
-    if (a.weightPct !== null && a.weightPct !== undefined) weightText = String(a.weightPct);
-
-    let rowClass = "";
-    if (a.id === selectedAssessmentId) rowClass = "selected-row";
-
-    html += `
-      <tr data-id="${a.id}" class="${rowClass}">
-        <td>${a.name}</td>
-        <td>${formatDate(a.due)}</td>
-        <td>${gradeText}</td>
-        <td>${weightText}</td>
-        <td class="right">
-          <label class="status-inline">
-            <input type="checkbox" class="complete-toggle" data-id="${a.id}" ${checkedAttr} />
-            <span>${statusText}</span>
-          </label>
-          <button type="button" class="icon-btn edit-btn" data-id="${a.id}">Edit</button>
-          <button type="button" class="icon-btn danger delete-btn" data-id="${a.id}">Del</button>
-        </td>
-      </tr>
-    `;
+  // if courseId in URL, load it directly
+  if (courseId) {
+    const course = courses.find(c => c._id === courseId);
+    if (course) {
+      courseSelectModal.classList.remove("show");
+      loadCourseData(course);
+    }
   }
-
-  assessmentRowsEl.innerHTML = html;
+  // otherwise modal stays open
 }
 
-function rerender() {
-  renderTable();
+async function loadCourseData(course) {
+  courseTitle.textContent = `${course.courseCode} — ${course.name}`;
+
+  const res = await fetch(`${BASE_URL}/assessments/student/${course._id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await res.json();
+
+  templates = data.templates || [];
+  studentAssessments = data.studentAssessments || [];
+
+  renderAll();
+}
+
+// ----- RENDER -----
+function renderAll() {
+  renderTemplates();
+  renderStudentAssessments();
   renderStats();
 }
 
-// Modal open/close
-function openFormAdd() {
+function renderTemplates() {
+  if (templates.length === 0) {
+    templateRows.innerHTML = `<tr><td colspan="4">No templates from instructor yet.</td></tr>`;
+    return;
+  }
+
+  templateRows.innerHTML = templates.map(t => `
+    <tr>
+      <td>${t.title}</td>
+      <td>${t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "—"}</td>
+      <td>${t.weight}%</td>
+      <td class="right">
+        <button class="action-btn use-template-btn" data-id="${t._id}">Use Template</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function renderStudentAssessments() {
+  if (studentAssessments.length === 0) {
+    assessmentRows.innerHTML = `<tr><td colspan="5">No assessments yet. Add one or use a template.</td></tr>`;
+    return;
+  }
+
+  assessmentRows.innerHTML = studentAssessments.map(a => `
+    <tr>
+      <td>${a.title}</td>
+      <td>${a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "—"}</td>
+      <td>${a.earnedMarks !== null && a.earnedMarks !== undefined ? a.earnedMarks + "%" : "—"}</td>
+      <td>${a.weight}%</td>
+      <td class="right">
+        <select class="status-select" data-id="${a._id}">
+          <option value="pending" ${a.status === "pending" ? "selected" : ""}>Pending</option>
+          <option value="completed" ${a.status === "completed" ? "selected" : ""}>Completed</option>
+        </select>
+        <button class="action-btn edit-btn" data-id="${a._id}">Edit</button>
+        <button class="action-btn danger-btn delete-btn" data-id="${a._id}">Delete</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function renderStats() {
+  const avgEl = document.getElementById("avgValue");
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+
+  const completed = studentAssessments.filter(a => a.status === "completed").length;
+  const total = studentAssessments.length;
+  const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+  progressBar.style.width = `${percent}%`;
+  progressText.textContent = `${completed}/${total}`;
+
+  let weightSum = 0;
+  let scoreSum = 0;
+  studentAssessments.forEach(a => {
+    if (a.earnedMarks !== null && a.earnedMarks !== undefined && a.weight) {
+      weightSum += a.weight;
+      scoreSum += a.earnedMarks * a.weight;
+    }
+  });
+
+  avgEl.textContent = weightSum === 0 ? "--%"  : `${Math.round(scoreSum / weightSum)}%`;
+}
+
+// ----- CHANGE COURSE -----
+document.getElementById("changeCourseBtn").addEventListener("click", () => {
+  courseSelectModal.classList.add("show");
+});
+
+// ----- OPEN / CLOSE MODAL -----
+addBtn.addEventListener("click", () => {
+  if (!courseId) {
+    alert("Please select a course first.");
+    return;
+  }
   editingId = "";
-  modalTitleEl.textContent = "Add assessment";
+  modalTitle.textContent = "Add Assessment";
   form.reset();
   popup.classList.remove("hidden");
-}
+});
 
-function openFormEdit(assessment) {
-  editingId = assessment.id;
-  modalTitleEl.textContent = "Edit assessment";
-
-  nameInput.value = assessment.name;
-  dueInput.value = assessment.due;
-
-  if (typeof assessment.gradePct === "number") gradeInput.value = String(assessment.gradePct);
-  else gradeInput.value = "";
-
-  if (assessment.weightPct !== null && assessment.weightPct !== undefined) weightInput.value = String(assessment.weightPct);
-  else weightInput.value = "";
-
-  if (assessment.completed) statusSelect.value = "Completed";
-  else statusSelect.value = "Pending";
-
-  popup.classList.remove("hidden");
-}
-
-function closeForm() {
+cancelBtn.addEventListener("click", () => {
   popup.classList.add("hidden");
   form.reset();
   editingId = "";
-}
-
-// Buttons
-addAssessmentBtn.addEventListener("click", () => {
-  if (!selectedCourse) {
-    alert("Select a course first.");
-    return;
-  }
-  openFormAdd();
 });
 
-editAssessmentBtn.addEventListener("click", () => {
-  if (!selectedCourse) {
-    alert("Select a course first.");
-    return;
-  }
-  if (!selectedAssessmentId) {
-    alert("Click a row first to select an assessment, then press Edit.");
-    return;
-  }
-
-  let found = null;
-  for (let i = 0; i < selectedCourse.assessments.length; i++) {
-    if (selectedCourse.assessments[i].id === selectedAssessmentId) {
-      found = selectedCourse.assessments[i];
-      break;
-    }
-  }
-
-  if (!found) {
-    alert("Assessment not found.");
-    return;
-  }
-
-  openFormEdit(found);
-});
-
-cancelBtn.addEventListener("click", closeForm);
-
-// Save (Add/Edit)
-form.addEventListener("submit", (e) => {
+// ----- SUBMIT -----
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!selectedCourse) return;
 
-  const name = nameInput.value.trim();
-  const due = dueInput.value;
-
-  const weightPct = Number(weightInput.value);
-  const gradeRaw = gradeInput.value;
-
-  let gradePct = null;
-  if (gradeRaw !== "") {
-    gradePct = Number(gradeRaw);
-    if (Number.isNaN(gradePct)) gradePct = null;
-  }
-
-  const completed = statusSelect.value === "Completed";
-
-  if (!name || !due || Number.isNaN(weightPct)) return;
+  const body = {
+    courseId,
+    title: nameInput.value.trim(),
+    dueDate: dueInput.value,
+    earnedMarks: gradeInput.value ? Number(gradeInput.value) : null,
+    weight: Number(weightInput.value),
+    status: statusSelect.value,
+    category: "assignment",
+    totalMarks: 100,
+    isTemplate: false
+  };
 
   if (editingId) {
-    for (let i = 0; i < selectedCourse.assessments.length; i++) {
-      if (selectedCourse.assessments[i].id === editingId) {
-        selectedCourse.assessments[i].name = name;
-        selectedCourse.assessments[i].due = due;
-        selectedCourse.assessments[i].weightPct = weightPct;
-        selectedCourse.assessments[i].completed = completed;
-        selectedCourse.assessments[i].gradePct = gradePct;
-        break;
-      }
-    }
-  } else {
-    const newId = "A_" + String(Date.now());
-    selectedCourse.assessments.push({
-      id: newId,
-      name: name,
-      due: due,
-      weightPct: weightPct,
-      gradePct: gradePct,
-      completed: completed
+    const res = await fetch(`${BASE_URL}/assessments/${editingId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
     });
+    const updated = await res.json();
+    studentAssessments = studentAssessments.map(a => a._id === editingId ? updated : a);
+  } else {
+    const res = await fetch(`${BASE_URL}/assessments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    studentAssessments.push(data.assessment);
   }
 
-  closeForm();
-  rerender();
+  popup.classList.add("hidden");
+  form.reset();
+  editingId = "";
+  renderAll();
 });
 
-// Table interactions
-assessmentRowsEl.addEventListener("click", (e) => {
-  const row = e.target.closest("tr");
-  if (row && row.dataset.id) {
-    selectedAssessmentId = row.dataset.id;
-    rerender();
+// ----- TABLE ACTIONS -----
+assessmentRows.addEventListener("click", async (e) => {
+  const id = e.target.dataset.id;
+
+  if (e.target.classList.contains("edit-btn")) {
+    const a = studentAssessments.find(a => a._id === id);
+    if (!a) return;
+    editingId = id;
+    modalTitle.textContent = "Edit Assessment";
+    nameInput.value = a.title;
+    dueInput.value = a.dueDate ? a.dueDate.split("T")[0] : "";
+    gradeInput.value = a.earnedMarks ?? "";
+    weightInput.value = a.weight;
+    statusSelect.value = a.status;
+    popup.classList.remove("hidden");
   }
 
-  const toggle = e.target.closest(".complete-toggle");
-  if (toggle && selectedCourse) {
-    const id = toggle.dataset.id;
-    const checked = toggle.checked;
-
-    for (let i = 0; i < selectedCourse.assessments.length; i++) {
-      if (selectedCourse.assessments[i].id === id) {
-        selectedCourse.assessments[i].completed = checked;
-        break;
-      }
-    }
-
-    rerender();
-    return;
-  }
-
-  const editBtn = e.target.closest(".edit-btn");
-  if (editBtn && selectedCourse) {
-    const id = editBtn.dataset.id;
-
-    let found = null;
-    for (let i = 0; i < selectedCourse.assessments.length; i++) {
-      if (selectedCourse.assessments[i].id === id) {
-        found = selectedCourse.assessments[i];
-        break;
-      }
-    }
-
-    if (found) {
-      selectedAssessmentId = id;
-      openFormEdit(found);
-      rerender();
-    }
-    return;
-  }
-
-  const delBtn = e.target.closest(".delete-btn");
-  if (delBtn && selectedCourse) {
-    const id = delBtn.dataset.id;
-    const ok = confirm("Delete this assessment? (Demo action)");
+  if (e.target.classList.contains("delete-btn")) {
+    const ok = confirm("Delete this assessment?");
     if (!ok) return;
-
-    const next = [];
-    for (let i = 0; i < selectedCourse.assessments.length; i++) {
-      if (selectedCourse.assessments[i].id !== id) next.push(selectedCourse.assessments[i]);
-    }
-    selectedCourse.assessments = next;
-
-    if (selectedAssessmentId === id) selectedAssessmentId = "";
-    rerender();
+    await fetch(`${BASE_URL}/assessments/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    studentAssessments = studentAssessments.filter(a => a._id !== id);
+    renderAll();
   }
 });
 
-rerender();
+// ----- STATUS CHANGE -----
+assessmentRows.addEventListener("change", async (e) => {
+  if (e.target.classList.contains("status-select")) {
+    const id = e.target.dataset.id;
+    await fetch(`${BASE_URL}/assessments/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ status: e.target.value })
+    });
+    studentAssessments = studentAssessments.map(a =>
+      a._id === id ? { ...a, status: e.target.value } : a
+    );
+    renderStats();
+  }
+});
+
+// ----- USE TEMPLATE -----
+templateRows.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("use-template-btn")) {
+    const id = e.target.dataset.id;
+    const res = await fetch(`${BASE_URL}/assessments/copy/${id}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    studentAssessments.push(data.assessment);
+    renderAll();
+  }
+});
+
+// ----- INIT -----
+loadData();

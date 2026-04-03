@@ -1,163 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-    <link rel="stylesheet" href="css/student-assessment.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Assessments</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="css/student-assessment.css">
 </head>
-
 <body>
-
-
-    <nav class="navbar">
-        <ul>
-            <li class="left"><a href="student-dashboard.html"><span class="material-symbols-outlined">
-                        school</span></a>
-                <a href="student-dashboard.html" id="title">
-                    <h3>CourseMate</h3>
-                </a>
-            </li>
-
-            <li class="center">
-                <a href="student-dashboard.html" class="dashboard-back">Dashboard</a>
-            </li>
-
-
-            <li id="drop-down-menu" class="profile-menu">
-                <span class="material-symbols-outlined profile-icon">
-                    account_circle
-                </span>
-
-                <div class="profile-dropdown">
-                    <a href="profile.html">Profile</a>
-                    <a href="index.html">Logout</a>
-                </div>
-            </li>
-        </ul>
-    </nav>
-
-    <main class="container">
-
-        <!-- Header -->
-        <section class="course-head">
-            <div>
-                <h1 class="page-title" id="courseTitle">Course Title</h1>
-            </div>
-
-            <div class="course-head-actions">
-
-                <!-- add btn -->
-                <button class="primary-btn" id="btnAddAssessment">+ Add Assessment</button>
-
-            </div>
-        </section>
-
-
-        <section class="stats-grid stats-grid-2">
-            <div class="card stat-card">
-                <p class="stat-label">Current Average</p>
-                <h2 class="stat-value" id="avgValue">--%</h2>
-                <p class="stat-hint">Based on entered grades.</p>
-            </div>
-
-            <div class="card stat-card">
-                <p class="stat-label">Progress</p>
-                <div class="progress">
-                    <div class="progress-bar" id="progressBar" style="width:0%"></div>
-                </div>
-                <p class="stat-hint">
-                    <span class="stat-strong" id="progressText">0/0</span> assessments completed
-                </p>
-            </div>
-        </section>
-
-
-
-
-        <section class="card">
-            <div class="card-head">
-                <div>
-                    <h2 class="card-title">Assessments & Grades</h2>
-                    <p class="card-subtitle">Enter earned/total marks and mark items as completed.</p>
-                </div>
-
-                <div class="table-actions">
-
-                    <!-- EDIT BTN -->
-
-                    <button class="primary-btn" id="btnEditAssessment">Edit Assessment & Grades</button>
-
-                </div>
-            </div>
-
-            <div class="table-wrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Due</th>
-                            <th>Grade%</th>
-                            <th>Weight%</th>
-                            <th class="right">Status</th>
-                        </tr>
-                    </thead>
-
-
-
-                    <tbody id="assessmentRows"></tbody>
-                </table>
-            </div>
-        </section>
- </main>
-        <!-- form popup BTN -->
-        <div id="assessmentFormPopup" class="form-popup hidden">
-            <div class="form-card">
-                <h3>Add assessment</h3>
-                <form id="btnAddAssessmentForm" class="Assessment-form">
-                    <label>
-                        Name
-                        <input type="text" placeholder="SOEN 287" required />
-                    </label>
-
-                    <label>
-                        Due
-                        <input type="date" placeholder="yyyy/mm/dd" required />
-                    </label>
-
-                    <label>
-                        Grade%
-                        <input type="text" placeholder="0" required />
-                    </label>
-
-                    <label>
-                        Weight%
-                        <input type="text" placeholder="20" required />
-                    </label>
-
-                    <label>
-                        Status
-                        <select name="term" required>
-                            <option value="">Select a term…</option>
-                            <option>Pending</option>
-                            <option>Completed</option>
-                        </select>
-                    </label>
-
-                    <div class="form-actions">
-                        <button type="button" id="cancelCourseForm" class="secondary-btn">Cancel</button>
-                        <button type="submit" class="primary-btn">Save</button>
-                    </div>
-                </form>
-            </div>
+  <nav class="navbar">
+    <ul>
+      <li class="left">
+        <a href="student-dashboard.html"><span class="material-symbols-outlined">school</span></a>
+        <a href="student-dashboard.html" id="title"><h3>CourseMate</h3></a>
+      </li>
+      <li class="center">
+        <a href="student-dashboard.html" class="dashboard-back">Dashboard</a>
+      </li>
+      <li id="drop-down-menu" class="profile-menu">
+        <span class="material-symbols-outlined profile-icon">account_circle</span>
+        <div class="profile-dropdown">
+          <a href="profile.html">Profile</a>
+          <a href="index.html">Logout</a>
         </div>
+      </li>
+    </ul>
+  </nav>
 
-   
-    <script src="js/data.js"></script>
-    <script src="js/student-assessment.js"></script>
+  <main class="container">
 
+    <section class="course-head">
+      <h1 class="page-title" id="courseTitle">Select a Course</h1>
+      <div style="display:flex; gap:10px;">
+        <button class="primary-btn" id="changeCourseBtn">Change Course</button>
+        <button class="primary-btn" id="btnAddAssessment">+ Add Assessment</button>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-grid stats-grid-2">
+      <div class="card stat-card">
+        <p class="stat-label">Current Average</p>
+        <h2 class="stat-value" id="avgValue">--%</h2>
+        <p class="stat-hint">Based on entered grades.</p>
+      </div>
+      <div class="card stat-card">
+        <p class="stat-label">Progress</p>
+        <div class="progress">
+          <div class="progress-bar" id="progressBar" style="width:0%"></div>
+        </div>
+        <p class="stat-hint">
+          <span class="stat-strong" id="progressText">0/0</span> assessments completed
+        </p>
+      </div>
+    </section>
+
+    <!-- Instructor Templates -->
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title">Instructor Templates</h2>
+          <p class="card-subtitle">Click "Use Template" to copy to your assessments.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Due</th>
+              <th>Weight%</th>
+              <th class="right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="templateRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Student Assessments -->
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title">Your Assessments</h2>
+          <p class="card-subtitle">Your own assessments and copied templates.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Due</th>
+              <th>Grade%</th>
+              <th>Weight%</th>
+              <th class="right">Status / Actions</th>
+            </tr>
+          </thead>
+          <tbody id="assessmentRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Course Selector Modal -->
+  <div class="modal show" id="courseSelectModal">
+    <div class="modal-card">
+      <h2>Select a Course</h2>
+      <div id="courseSelectList"></div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Assessment Modal -->
+  <div id="assessmentFormPopup" class="form-popup hidden">
+    <div class="form-card">
+      <h3 id="modalTitle">Add Assessment</h3>
+      <form id="btnAddAssessmentForm" class="Assessment-form">
+        <label>Name
+          <input name="aname" type="text" placeholder="Midterm" required />
+        </label>
+        <label>Due Date
+          <input name="due" type="date" required />
+        </label>
+        <label>Grade%
+          <input name="grade" type="number" placeholder="0" />
+        </label>
+        <label>Weight%
+          <input name="weight" type="number" placeholder="20" required />
+        </label>
+        <label>Status
+          <select name="status" required>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </label>
+        <div class="form-actions">
+          <button type="button" id="cancelCourseForm" class="secondary-btn">Cancel</button>
+          <button type="submit" class="primary-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/student-assessment.js"></script>
 </body>
-
 </html>

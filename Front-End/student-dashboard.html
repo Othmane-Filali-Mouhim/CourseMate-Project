@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Student Dashboard</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <link rel="stylesheet" href="css/student-dashboard.css">
 </head>
@@ -12,19 +12,12 @@
 <body>
     <nav class="navbar">
         <ul>
-            <li class="left"><a href="student-dashboard.html"><span class="material-symbols-outlined">
-                        school</span></a>
-                <a href="student-dashboard.html" id="title">
-                    <h3>CourseMate</h3>
-                </a>
+            <li class="left">
+                <a href="student-dashboard.html"><span class="material-symbols-outlined">school</span></a>
+                <a href="student-dashboard.html" id="title"><h3>CourseMate</h3></a>
             </li>
-
-
             <li id="drop-down-menu" class="profile-menu">
-                <span class="material-symbols-outlined profile-icon">
-                    account_circle
-                </span>
-
+                <span class="material-symbols-outlined profile-icon">account_circle</span>
                 <div class="profile-dropdown">
                     <a href="profile.html">Profile</a>
                     <a href="index.html">Logout</a>
@@ -33,80 +26,40 @@
         </ul>
     </nav>
 
-
     <section class="dashboard-header">
-        <h1>Welcome back X</h1>
-        <p>Here’s a quick overview of your academic progress.</p>
+        <h1>Welcome back</h1>
+        <p>Here's a quick overview of your academic progress.</p>
     </section>
 
-
-
     <section class="dashboard-cards">
+        <a href="student-courses.html" class="dashboard-link">
+            <div class="dashboard-card">
+                <span class="material-symbols-outlined dashboard-icon icon-blue">menu_book</span>
+                <h3>Courses</h3>
+                <p>View and manage your courses</p>
+            </div>
+        </a>
 
-  <a href="student-courses.html" class="dashboard-link" >
-    <div class="dashboard-card">
-      <span class="material-symbols-outlined dashboard-icon icon-blue">
-        menu_book
-      </span>
-      <h3>Courses</h3>
-      <p>View and manage your courses</p>
-    </div>
-  </a>
-
-  <a href="#" class="dashboard-link" id="openAssessments">
-    <div class="dashboard-card">
-      <span class="material-symbols-outlined dashboard-icon icon-purple">
-        assignment
-      </span>
-      <h3>Assessment & Grade Management</h3>
-      <p>Track assessments and manage your grades</p>
-    </div>
-  </a>
-
-</section>
+        <a href="student-assessments.html" class="dashboard-link" id="openAssessments">
+            <div class="dashboard-card">
+                <span class="material-symbols-outlined dashboard-icon icon-purple">assignment</span>
+                <h3>Assessment & Grade Management</h3>
+                <p>Track assessments and manage your grades</p>
+            </div>
+        </a>
+    </section>
 
     <section class="dashboard-summary">
         <h2>Upcoming Assessments</h2>
-
         <div class="dashboard-table">
             <div class="dashboard-row dashboard-header-row">
                 <span>Course</span>
                 <span>Assessment</span>
-                <span>Current Avg</span>
+                <span>Weight%</span>
                 <span>Due Date</span>
             </div>
         </div>
     </section>
-    <!-- Choose Course Modal -->
-<div id="coursePickerModal" class="modal hidden">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h2>Select a course</h2>
-      <button type="button" class="icon-btn" id="closeCoursePicker">✕</button>
-    </div>
-
-    <form id="coursePickerForm">
-      <label class="modal-label">
-        Course
-        <select id="courseSelect" required>
-          <option value="">Choose a course...</option>
-          <option value="SOEN287">SOEN 287</option>
-          <option value="COMP352">COMP 352</option>
-        </select>
-      </label>
-
-      <div class="modal-actions">
-        <button type="button" class="secondary-btn" id="cancelCoursePicker">Cancel</button>
-        <button type="submit" class="primary-btn">Continue</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-
-
-
 
     <script src="js/student-dashboard.js"></script>
 </body>
