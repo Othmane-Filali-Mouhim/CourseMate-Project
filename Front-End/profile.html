@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="css/profile.css" />
+</head>
+
+<body>
+  <nav class="navbar">
+    <ul>
+      <li class="left">
+        <a id="dashLink" href="#">
+          <span class="material-symbols-outlined">school</span>
+        </a>
+        <a id="dashLink2" href="#" id="title"><h3>CourseMate</h3></a>
+      </li>
+
+      <li class="center">
+        <a id="dashLink3" href="#" class="dashboard-back">Dashboard</a>
+      </li>
+
+      <li class="profile-menu">
+        <span class="material-symbols-outlined profile-icon">account_circle</span>
+        <div class="profile-dropdown">
+          <a href="profile.html">Profile</a>
+          <a href="index.html">Logout</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h1 class="page-title">Profile</h1>
+
+    <div class="card">
+        <div class="actions">
+  <button class="primary-btn" id="editProfileBtn" type="button">Edit Profile</button>
+  <span class="msg" id="profileMsg"></span>
+</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="label">Name</div>
+          <div class="value" id="nameText"></div>
+        </div>
+
+        <div class="info-item">
+          <div class="label">Email</div>
+          <div class="value" id="emailText"></div>
+        </div>
+
+        <div class="info-item">
+          <div class="label">Role</div>
+          <div class="value" id="roleText"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Change Password</h2>
+
+      <form id="passwordForm" class="form">
+        <label>
+          Current Password
+          <input id="currentPass" type="password" required />
+        </label>
+
+        <label>
+          New Password
+          <input id="newPass" type="password" required />
+        </label>
+
+        <label>
+          Confirm New Password
+          <input id="confirmPass" type="password" required />
+        </label>
+
+        <div class="actions">
+          <button class="primary-btn" type="submit">Update Password</button>
+          <span class="msg" id="passMsg"></span>
+        </div>
+
+      
+      </form>
+    </div>
+    <!-- Edit Profile Modal -->
+<div class="modal hidden" id="profileModal">
+  <div class="modal-card">
+    <h2>Edit Profile</h2>
+
+    <form id="profileForm">
+      <label>
+        Name
+        <input id="editName" type="text" required />
+      </label>
+
+      <label>
+        Email
+        <input id="editEmail" type="email" required />
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" id="cancelProfileBtn">Cancel</button>
+        <button type="submit" class="primary-btn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>

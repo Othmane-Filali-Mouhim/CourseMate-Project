@@ -1,30 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-     <link rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <link rel="stylesheet" href="css/student-dashboard.css">
 </head>
+
 <body>
-        <nav class="navbar">
+    <nav class="navbar">
         <ul>
             <li class="left"><a href="student-dashboard.html"><span class="material-symbols-outlined">
-                school</span></a>
-            <a href="student-dashboard.html" id="title"><h3>CourseMate</h3></a>
+                        school</span></a>
+                <a href="student-dashboard.html" id="title">
+                    <h3>CourseMate</h3>
+                </a>
             </li>
-            
-            
+
+
             <li id="drop-down-menu" class="profile-menu">
                 <span class="material-symbols-outlined profile-icon">
                     account_circle
                 </span>
 
                 <div class="profile-dropdown">
-                <a href="#">Profile</a>
-                <a href="index.html">Logout</a>
+                    <a href="profile.html">Profile</a>
+                    <a href="index.html">Logout</a>
                 </div>
             </li>
         </ul>
@@ -37,85 +40,75 @@
     </section>
 
 
-     
+
     <section class="dashboard-cards">
 
-    <a href="student-courses.html" class="dashboard-link">
-        <div class="dashboard-card">
-            <span class="material-symbols-outlined dashboard-icon icon-blue">
-                menu_book
-            </span>
-            <h3>Courses</h3>
-            <p>View and manage your courses</p>
-        </div>
-    </a>
-
-    <a href="student-assessments.html" class="dashboard-link">
-        <div class="dashboard-card">
-            <span class="material-symbols-outlined dashboard-icon icon-purple">
-                assignment
-            </span>
-            <h3>Assessments</h3>
-            <p>Track upcoming quizzes and exams</p>
-        </div>
-    </a>
-
-    <a href="student-grades.html" class="dashboard-link">
-        <div class="dashboard-card">
-            <span class="material-symbols-outlined dashboard-icon icon-green">
-                bar_chart
-            </span>
-            <h3>Grades</h3>
-            <p>View grades and averages</p>
-        </div>
-    </a>
-</section>
-
-<section class="dashboard-summary">
-    <h2>Upcoming Assessments</h2>
-
-    <div class="dashboard-table">
-        <div class="dashboard-row dashboard-header-row">
-            <span>Course</span>
-            <span>Assessment</span>
-            <span>Current Avg</span>
-            <span>Due Date</span>
-        </div>
-
-        <div class="dashboard-row">
-            <span>SOEN 287</span>
-            <span>Quiz 1</span>
-            <span>78%</span>
-            <span>Feb 15</span>
-        </div>
-
-        <div class="dashboard-row">
-            <span>COMP 248</span>
-            <span>Lab 2</span>
-            <span>82%</span>
-            <span>Feb 18</span>
-        </div>
-
-        <div class="dashboard-row">
-            <span>SOEN 287</span>
-            <span>Midterm</span>
-            <span>74%</span>
-            <span>Feb 22</span>
-        </div>
-
-        <div class="dashboard-row">
-            <span>MATH 204</span>
-            <span>Final Exam</span>
-            <span>80%</span>
-            <span>Apr 10</span>
-        </div>
+  <a href="student-courses.html" class="dashboard-link" >
+    <div class="dashboard-card">
+      <span class="material-symbols-outlined dashboard-icon icon-blue">
+        menu_book
+      </span>
+      <h3>Courses</h3>
+      <p>View and manage your courses</p>
     </div>
+  </a>
+
+  <a href="#" class="dashboard-link" id="openAssessments">
+    <div class="dashboard-card">
+      <span class="material-symbols-outlined dashboard-icon icon-purple">
+        assignment
+      </span>
+      <h3>Assessment & Grade Management</h3>
+      <p>Track assessments and manage your grades</p>
+    </div>
+  </a>
+
 </section>
 
+    <section class="dashboard-summary">
+        <h2>Upcoming Assessments</h2>
+
+        <div class="dashboard-table">
+            <div class="dashboard-row dashboard-header-row">
+                <span>Course</span>
+                <span>Assessment</span>
+                <span>Current Avg</span>
+                <span>Due Date</span>
+            </div>
+        </div>
+    </section>
+    <!-- Choose Course Modal -->
+<div id="coursePickerModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Select a course</h2>
+      <button type="button" class="icon-btn" id="closeCoursePicker">✕</button>
+    </div>
+
+    <form id="coursePickerForm">
+      <label class="modal-label">
+        Course
+        <select id="courseSelect" required>
+          <option value="">Choose a course...</option>
+          <option value="SOEN287">SOEN 287</option>
+          <option value="COMP352">COMP 352</option>
+        </select>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" id="cancelCoursePicker">Cancel</button>
+        <button type="submit" class="primary-btn">Continue</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 
 
 
-     <script src="js/student-dashboard.js"></script>
+
+
+    <script src="js/student-dashboard.js"></script>
 </body>
+
 </html>

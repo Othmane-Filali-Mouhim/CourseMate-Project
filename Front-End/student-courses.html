@@ -1,43 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-    <link rel="stylesheet" href="css/student-courses.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Courses</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="css/student-courses.css" />
 </head>
+
 <body>
-     <nav class="navbar">
-        <ul>
-            <li class="left"><a href="student-dashboard.html"><span class="material-symbols-outlined">
-                school</span></a>
-            <a href="student-dashboard.html" id="title"><h3>CourseMate</h3></a>
-            </li>
+  <nav class="navbar">
+    <ul>
+      <li class="left">
+        <a href="student-dashboard.html">
+          <span class="material-symbols-outlined">school</span>
+        </a>
+        <a href="student-dashboard.html" id="title">
+          <h3>CourseMate</h3>
+        </a>
+      </li>
 
-            <li class="center">
-                <a href="student-dashboard.html" class="dashboard-back">Dashboard</a>
-            </li>
-            
-            
-            <li id="drop-down-menu" class="profile-menu">
-                <span class="material-symbols-outlined profile-icon">
-                    account_circle
-                </span>
+      <li class="center">
+        <a href="student-dashboard.html" class="dashboard-back">Dashboard</a>
+      </li>
 
-                <div class="profile-dropdown">
-                <a href="#">Profile</a>
-                <a href="index.html">Logout</a>
-                </div>
-            </li>
-        </ul>
-    </nav>
-<section class="page-header">
+      <li id="drop-down-menu" class="profile-menu">
+        <span class="material-symbols-outlined profile-icon">account_circle</span>
+
+        <div class="profile-dropdown">
+          <a href="profile.html">Profile</a>
+          <a href="index.html">Logout</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <section class="page-header">
     <h1>Your Courses</h1>
     <button class="primary-btn" id="addCourseBtn">+ Add Course</button>
-</section>
+  </section>
 
-    <script src="js/student-courses.js"></script>
+  <!-- Add Course form -->
+  <div id="courseFormPopup" class="form-popup hidden">
+    <div class="form-card">
+      <div class="form-header">
+        <h2>Add a Course</h2>
+        <button type="button" id="closeCourseForm" class="icon-btn">✕</button>
+      </div>
+
+      <form id="addCourseForm" class="course-form">
+        <label>
+          Course Code
+          <input name="code" type="text" placeholder="SOEN 287" required />
+        </label>
+
+        <label>
+          Course Name
+          <input name="name" type="text" placeholder="Web Programming" required />
+        </label>
+
+        <label>
+          Instructor
+          <input name="instructor" type="text" placeholder="Dr. Smith" required />
+        </label>
+
+        <label>
+          Term
+          <select name="term" required>
+            <option value="">Select a term…</option>
+            <option>Winter 2026</option>
+            <option>Summer 2026</option>
+            <option>Fall 2026</option>
+          </select>
+        </label>
+
+        <div class="form-actions">
+          <button type="button" id="cancelCourseForm" class="secondary-btn">Cancel</button>
+          <button type="submit" class="primary-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <section class="courses-section">
+    <div class="courses-card">
+      <table class="courses-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Instructor</th>
+            <th>Term</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+
+        <!-- JS will render rows here from data.js -->
+        <tbody id="coursesBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- IMPORTANT: data.js must be loaded before student-courses.js -->
+  <script src="js/data.js"></script>
+  <script src="js/student-courses.js"></script>
 </body>
+
 </html>

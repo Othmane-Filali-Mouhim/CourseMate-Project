@@ -1,13 +1,12 @@
 body{
-    background-color: #F5F9FF;
-    font-family: "Poppins", Sans-serif;
-    color:#6B7280;
-    
+  background-color: #F5F9FF;
+  font-family: "Poppins", Sans-serif;
+  color:#6B7280;
+  margin: 0;
 }
+
 /* ===== Navbar ===== */
-.navbar{
-  padding: 16px 24px;    
-}
+.navbar{ padding: 16px 24px; }
 .navbar ul{
   list-style: none;
   margin: 0;
@@ -17,13 +16,8 @@ body{
   align-items: center;
 }
 
-.navbar a{
-    color:#6B7280;
-    text-decoration: none;
-}
-.navbar a:hover{
-    color:#2563EB;
-}
+.navbar a{ color:#6B7280; text-decoration: none; }
+.navbar a:hover{ color:#2563EB; }
 
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
@@ -37,40 +31,104 @@ body{
   text-transform: none;
 }
 
-#title{
-    color: #2563EB;
-}
+#title{ color: #2563EB; }
 
 .left{ justify-self: start; display:flex; align-items:center; gap:8px; }
 .center{ justify-self: center; }
-.profile-menu{ justify-self: end; position: relative; cursor: pointer;}
-.profile-icon:hover{
-  transform: translateY(-3px);                
-  filter: drop-shadow(0 8px 16px rgba(0,0,0,.12)); 
+.profile-menu{ justify-self: end; position: relative; cursor: pointer; }
+.profile-icon{
+  font-size: 36px;
+  color: #2563EB;
+  transition: transform 0.2s ease;
 }
-.profile-icon {
-    font-size: 36px;
-    color: #2563EB;
+.profile-icon:hover{ transform: translateY(-3px); }
+
+.profile-dropdown{
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  padding: 10px 0;
+  width: 150px;
+  display: none;
 }
-.profile-dropdown {
-    position: absolute;
-    top: 45px;
-    right: 0;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    padding: 10px 0;
-    width: 150px;
-    flex-direction: column;
+.profile-dropdown.open{ display: block; }
+.profile-dropdown a{
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #6B7280;
+  display: block;
 }
-.profile-dropdown a {
-    padding: 10px 16px;
-    text-decoration: none;
-    color: #555;
-    display: block;
+.profile-dropdown a:hover{ background: #EFF6FF; color: #2563EB; }
+
+/* ===== Page ===== */
+.container{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
 }
 
-.profile-dropdown a:hover {
-    background: #f4faff;
-    color: #2563EB;
+.page-header{
+  display:flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin: 30px 0 18px;
+}
+
+.page-header h1{ margin: 0; color: #111827; }
+.subtitle{ margin: 8px 0 0; font-size: 14px; }
+
+.header-actions{ display:flex; gap: 10px; }
+
+.select-label{ display:flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color:#374151; }
+select{
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #DCE7FF;
+  background: white;
+  outline: none;
+}
+
+.summary{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.summary-card{
+  background: white;
+  border: 1px solid #E6EEFF;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+  padding: 16px;
+}
+
+.summary-card .label{ margin: 0 0 10px; font-weight: 700; font-size: 13px; }
+.summary-card .value{ margin: 0 0 6px; font-size: 28px; color: #111827; }
+.summary-card .hint{ margin: 0; font-size: 13px; }
+
+.card{
+  background: white;
+  border: 1px solid #E6EEFF;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+  padding: 18px;
+}
+
+.card-head{ border-bottom: 1px solid #EEF2FF; padding-bottom: 10px; margin-bottom: 10px; }
+.card-title{ margin: 0; color:#111827; font-size: 18px; }
+
+.table-wrap{ overflow-x: auto; }
+.table{ width: 100%; border-collapse: collapse; min-width: 700px; }
+.table th, .table td{ padding: 12px 10px; border-bottom: 1px solid #EEF2FF; }
+.table th{ text-align:left; font-size: 12.5px; color:#6B7280; font-weight: 800; background: #F8FBFF; }
+.table tbody tr:hover{ background: #F8FBFF; }
+
+@media (max-width: 900px){
+  .summary{ grid-template-columns: 1fr; }
+  .page-header{ flex-direction: column; align-items: flex-start; }
 }

@@ -1,0 +1,84 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.contact-main {
+    margin: auto;                
+    max-width: 900px;
+    width: 100%;                 
+    box-sizing: border-box;      
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,147,244,0.1);
+    padding: 48px 40px;
+}
+
+.contact-main h1 {
+    font-size: 48px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 32px;
+}
+
+.contact-address {
+    font-size: 18px;
+    line-height: 1.7;
+    color: #555;
+    border-left: 4px solid #0093F4;
+    padding-left: 24px;
+    margin: 32px 0;
+}
+
+.customer-service {
+    margin: 40px 0;
+}
+
+.contact-list {
+    list-style: none;
+    padding: 0;
+}
+
+.contact-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.contact-list a {
+    color: #0093F4;
+    text-decoration: none;
+}
+
+.contact-list a:hover {
+    text-decoration: underline;
+}
+
+.footer {
+    text-align: center;          
+}
+
+.footer-container {
+    display: flex;
+    justify-content: center;       
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: column;        
+    align-items: center;           
+    gap: 0.5rem;                   
+}
+.footer-links a {
+    display: inline-block;         
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 1rem;
+}

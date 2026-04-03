@@ -1,30 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <link rel="stylesheet" href="css/instructor-dashboard.css">
 </head>
+
 <body>
-     <nav class="navbar">
+    <nav class="navbar">
         <ul>
             <li class="left"><a href="instructor-dashboard.html"><span class="material-symbols-outlined">
-                school</span></a>
-            <a href="instructor-dashboard.html" id="title"><h3>CourseMate</h3></a>
+                        school</span></a>
+                <a href="instructor-dashboard.html" id="title">
+                    <h3>CourseMate</h3>
+                </a>
             </li>
-            
-            
+
+
             <li id="drop-down-menu" class="profile-menu">
                 <span class="material-symbols-outlined profile-icon">
                     account_circle
                 </span>
 
                 <div class="profile-dropdown">
-                <a href="#">Profile</a>
-                <a href="index.html">Logout</a>
+                    <a href="profile.html">Profile</a>
+                    <a href="#" onclick="logout()">Logout</a>
                 </div>
             </li>
         </ul>
@@ -36,39 +39,60 @@
         <p>Manage courses and assessment.</p>
     </section>
 
+    <section class="dashboard-overview">
+
+    <div class="overview-card">
+        <h4>Total Courses</h4>
+        <p id="totalCourses">0</p>
+    </div>
+
+    <div class="overview-card">
+        <h4>Active Courses</h4>
+        <p id="activeCourses">0</p>
+    </div>
+
+    <div class="overview-card">
+        <h4>Avg Completion</h4>
+        <p id="avgCompletion">0%</p>
+    </div>
+
+</section>
+
+
     <section class="dashboard-cards">
-<a href="instructor-courses.html" class="dashboard-link">
-    <div class="dashboard-card">
-         <span class="material-symbols-outlined dashboard-icon icon-blue">
-                menu_book
-            </span>
-        <h3>Course Management</h3>
-        <p>creat, edit and enable courses</p>
-    </div>
-</a>
+        <a href="instructor-courses.html" class="dashboard-link">
+            <div class="dashboard-card">
+                <span class="material-symbols-outlined dashboard-icon icon-blue">
+                    menu_book
+                </span>
+                <h3>Course Management</h3>
+                <p>creat, edit and enable courses</p>
+            </div>
+        </a>
 
-<a href="instructor-assessment.html" class="dashboard-link">
-    <div class="dashboard-card">
-        <span class="material-symbols-outlined dashboard-icon icon-purple">
-                assignment
-            </span>
-        <h3>Assessment Management</h3>
-        <p>define and creat assessment</p>
-    </div>
-</a>
+        <a href="instructor-assessment.html" class="dashboard-link">
+            <div class="dashboard-card">
+                <span class="material-symbols-outlined dashboard-icon icon-purple">
+                    assignment
+                </span>
+                <h3>Assessment Management</h3>
+                <p>define and creat assessment</p>
+            </div>
+        </a>
 
-<a href="instructor-analytics.html" class="dashboard-link">
-    <div class="dashboard-card">
-        <span class="material-symbols-outlined dashboard-icon icon-green">
-                bar_chart
-            </span>
-        <h3>Monitoring and Analytics</h3>
-        <p>observe student progress and have insight</p>
-    </div>
-</a>
-
-
+        <a href="instructor-analytics.html" class="dashboard-link">
+            <div class="dashboard-card">
+                <span class="material-symbols-outlined dashboard-icon icon-green">
+                    bar_chart
+                </span>
+                <h3>Monitoring and Analytics</h3>
+                <p>observe student progress and have insight</p>
+            </div>
+        </a>
     </section>
-    
+
+    <script src="js/instructor-dashboard.js"></script>
+
 </body>
+
 </html>

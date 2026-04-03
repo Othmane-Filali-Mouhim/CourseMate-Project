@@ -28,15 +28,53 @@
                 </span>
 
                 <div class="profile-dropdown">
-                <a href="#">Profile</a>
-                <a href="#">Logout</a>
+                <a href="profile.html">Profile</a>
+                <a href="index.html">Logout</a>
                 </div>
             </li>
         </ul>
     </nav>
-    <h3>List of courses</h3>
 
 
-    <script src="instructor-courses.js"></script>
+   <section class="page-header">
+  <h1>Course Management</h1>
+  <button class="primary-btn" id="addCourseBtn">
+    <span class="material-symbols-outlined">add</span>
+    Add Course
+  </button>
+</section>
+
+<!-- Course Modal -->
+<div class="modal hidden" id="courseModal">
+  <div class="modal-card">
+    <h2 id="modalTitle">Add Course</h2>
+
+    <form id="courseForm">
+      <input type="hidden" id="editId">
+
+      <label>Course ID</label>
+      <input type="text" id="courseIdInput" required>
+
+      <label>Course Name</label>
+      <input type="text" id="courseNameInput" required>
+
+      <label>Term</label>
+      <input type="text" id="courseTermInput" required>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" id="cancelBtn">Cancel</button>
+        <button type="submit" class="primary-btn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<section class="courses-list" id="coursesList">
+  <!-- Courses will appear here -->
+</section>
+
+<script src="js/data.js"></script>
+    <script src="js/instructor-courses.js"></script>
 </body>
 </html>

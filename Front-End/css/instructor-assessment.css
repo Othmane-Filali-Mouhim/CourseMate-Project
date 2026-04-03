@@ -62,15 +62,276 @@ body{
     padding: 10px 0;
     width: 150px;
     flex-direction: column;
+    display: none;
 }
+
+.profile-dropdown.open { display: block; }
 .profile-dropdown a {
     padding: 10px 16px;
     text-decoration: none;
-    color: #555;
+    color: #6B7280;
     display: block;
 }
 
 .profile-dropdown a:hover {
-    background: #f4faff;
+    background: #EFF6FF;
     color: #2563EB;
+}
+/* =========================
+   PAGE HEADER
+========================= */
+
+.page-header {
+  max-width: 1100px;
+  margin: 40px auto 30px;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  color: #111827;
+}
+
+
+/* =========================
+   PRIMARY BUTTON
+========================= */
+
+.primary-btn {
+  background: #2563EB;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.primary-btn:hover {
+  background: #1E40AF;
+  transform: translateY(-2px);
+}
+
+
+/* =========================
+   CATEGORY LIST
+========================= */
+
+.categories-list {
+  max-width: 1100px;
+  margin: 0 auto 40px;
+  padding: 0 24px;
+}
+
+.category-card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+}
+
+.category-card h4 {
+  margin: 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.category-card p {
+  margin: 4px 0 0;
+  font-weight: 500;
+  color: #2563EB;
+}
+
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.edit-btn,
+.delete-btn {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.edit-btn {
+  background: #EDE9FE;
+  color: #7C3AED;
+}
+
+.edit-btn:hover {
+  background: #DDD6FE;
+}
+
+.delete-btn {
+  background: #FEE2E2;
+  color: #DC2626;
+  margin-left: 8px;
+}
+
+.delete-btn:hover {
+  background: #FECACA;
+}
+
+
+/* =========================
+   WEIGHT SUMMARY SECTION
+========================= */
+
+
+
+
+/* =========================
+   MODAL STYLES
+========================= */
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-card {
+  background: white;
+  padding: 30px;
+  border-radius: 14px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  animation: fadeInScale 0.2s ease;
+}
+
+@keyframes fadeInScale {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-card h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #111827;
+}
+
+
+/* =========================
+   FORM STYLING
+========================= */
+
+.modal-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.modal-card input {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  font-size: 14px;
+}
+
+.modal-card input:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-actions button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.modal-actions button[type="button"] {
+  background: #E5E7EB;
+}
+
+.modal-actions button[type="submit"] {
+  background: #2563EB;
+  color: white;
+}
+
+.modal-actions button[type="submit"]:hover {
+  background: #1E40AF;
+}
+
+#addCategoryBtn{
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+#addCategoryBtn .material-symbols-outlined{
+  font-size: 22px;
+}
+
+#courseSelectList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.course-select-btn {
+  background: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 15px;
+  transition: background 0.2s;
+}
+
+.course-select-btn:hover {
+  background: #DBEAFE;
 }

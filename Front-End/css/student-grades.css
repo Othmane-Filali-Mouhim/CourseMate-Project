@@ -62,15 +62,18 @@ body{
     padding: 10px 0;
     width: 150px;
     flex-direction: column;
+    display: none;
 }
+
+.profile-dropdown.open { display: block; }
 .profile-dropdown a {
     padding: 10px 16px;
     text-decoration: none;
-    color: #555;
+    color: #6B7280;
     display: block;
 }
 
 .profile-dropdown a:hover {
-    background: #f4faff;
+    background: #EFF6FF;
     color: #2563EB;
 }

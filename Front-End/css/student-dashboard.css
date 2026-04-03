@@ -64,7 +64,9 @@ body{
     padding: 10px 0;
     width: 150px;
     flex-direction: column;
+    display: none;
 }
+.profile-dropdown.open { display: block; }
 .profile-dropdown a {
     padding: 10px 16px;
     text-decoration: none;
@@ -101,7 +103,8 @@ body{
     margin: 0 auto 50px;
     padding: 0 24px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(320px, 420px));
+    justify-content: center;
     gap: 20px;
 }
 
@@ -182,4 +185,54 @@ body{
 
 .dashboard-row:last-child {
     border-bottom: none;
+}
+
+.modal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 999;
+}
+
+.hidden{ display: none; }
+
+.modal-card{
+  background: #fff;
+  width: min(480px, 94vw);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.modal-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.modal-label{
+  display: block;
+  margin: 12px 0;
+  color: #374151;
+  font-size: 14px;
+}
+
+.modal-label select{
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  outline: none;
+}
+
+.modal-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
 }
