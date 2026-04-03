@@ -10,9 +10,9 @@ if (menu && dropdown) {
     dropdown.classList.toggle("open");
     e.stopPropagation();
   });
-  document.addEventListener("click", (e) => {
+document.addEventListener("click", (e) => {
     if (!menu.contains(e.target)) dropdown.classList.remove("open");
-  });
+});
 }
 
 const filterSelect = document.getElementById("courseFilter");
