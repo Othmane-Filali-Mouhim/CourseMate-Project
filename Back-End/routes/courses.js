@@ -152,4 +152,16 @@ router.delete("/:id/enroll", protect, async (req, res) => {
   }
 });
 
+
+// GET single course by ID
+router.get("/:id", protect, async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ message: "Course not found" });
+    res.json(course);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;

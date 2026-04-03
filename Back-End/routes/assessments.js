@@ -2,6 +2,8 @@ import express from "express";
 import { Assessment } from "../models/assessmenModel.js";
 import { Course } from "../models/coursesModel.js";
 import { protect, restrictTo } from "../middleware/authMiddleware.js";
+import PDFDocument from "pdfkit";
+
 
 const router = express.Router();
 
@@ -88,6 +90,54 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+// EXPORT grades as PDF or CSV
+router.get("/export/:courseId", protect, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { format } = req.query; // ?format=pdf or ?format=csv
+
+    // fetch student's assessments for this course
+    const assessments = await Assessment.find({
+      course: courseId,
+      isTemplate: false,
+      createdBy: req.user.userId
+    });
+
+    if (format === "csv") {
+      // build csv string
+      let csv = "Title,Category,Earned Marks,Total Marks,Weight,Status\n";
+      assessments.forEach(a => {
+        csv += `${a.title},${a.category},${a.earnedMarks},${a.totalMarks},${a.weight},${a.status}\n`;
+      });
+
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", "attachment; filename=grades.csv");
+      return res.send(csv);
+    }
+
+    // default: PDF
+    const doc = new PDFDocument();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=grades.pdf");
+    doc.pipe(res);
+
+    doc.fontSize(18).text("Grade Report", { align: "center" });
+    doc.moveDown();
+
+    assessments.forEach(a => {
+      doc.fontSize(12).text(`${a.title} (${a.category})`);
+      doc.fontSize(10).text(`Marks: ${a.earnedMarks}/${a.totalMarks} | Weight: ${a.weight}% | Status: ${a.status}`);
+      doc.moveDown(0.5);
+    });
+
+    doc.end();
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 // GET assessments by course (instructor view)
 router.get("/:courseId", protect, async (req, res) => {
   try {
@@ -125,5 +175,6 @@ router.delete("/:id", protect, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 export default router;

@@ -1,4 +1,4 @@
-// for profile menu dropdown.
+// profile dropdown
 const menu = document.querySelector(".profile-menu");
 const dropdown = document.querySelector(".profile-dropdown");
 
@@ -11,152 +11,90 @@ document.addEventListener("click", (e) => {
   if (!menu.contains(e.target)) dropdown.classList.remove("open");
 });
 
-// for add course popmenu
-const addCourseBtn = document.getElementById("addCourseBtn");
-const popup = document.getElementById("courseFormPopup");
-const closeBtn = document.getElementById("closeCourseForm");
-const cancelBtn = document.getElementById("cancelCourseForm");
-
-const form = document.getElementById("addCourseForm");
-const codeInput = form.querySelector('input[name="code"]');
-const nameInput = form.querySelector('input[name="name"]');
-const instructorInput = form.querySelector('input[name="instructor"]');
-const termSelect = form.querySelector('select[name="term"]');
-const modalTitle = popup.querySelector("h2");
-
-let editingCourseId = "";
-
-function openFormAdd() {
-  editingCourseId = "";
-  modalTitle.textContent = "Add a Course";
-  form.reset();
-  popup.classList.remove("hidden");
-}
-
-function openFormEdit(course) {
-  editingCourseId = course.id;
-  modalTitle.textContent = "Edit Course";
-
-  codeInput.value = course.code;
-  nameInput.value = course.name;
-  instructorInput.value = course.instructor;
-  termSelect.value = course.term;
-
-  popup.classList.remove("hidden");
-}
-
-function closeForm() {
-  popup.classList.add("hidden");
-  form.reset();
-  editingCourseId = "";
-}
-
-addCourseBtn.addEventListener("click", openFormAdd);
-closeBtn.addEventListener("click", closeForm);
-cancelBtn.addEventListener("click", closeForm);
-
-// render courses
+const token = localStorage.getItem("token");
 const coursesBody = document.getElementById("coursesBody");
 
-function renderCourses() {
+// load enrolled courses
+async function loadCourses() {
+  const res = await fetch("http://localhost:8000/api/courses/enrolled", {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const courses = await res.json();
+
+  if (courses.length === 0) {
+    coursesBody.innerHTML = `<tr><td colspan="5">No courses yet. Search and enroll below.</td></tr>`;
+    return;
+  }
+
   let html = "";
-
-  for (let i = 0; i < courses.length; i++) {
-    const c = courses[i];
-
+  courses.forEach(c => {
     html += `
-      <tr data-id="${c.id}">
-        <td>${c.code}</td>
+      <tr data-id="${c._id}">
+        <td>${c.courseCode}</td>
         <td>${c.name}</td>
         <td>${c.instructor}</td>
         <td>${c.term}</td>
         <td class="right">
-          <button class="action-btn edit-btn" type="button">Edit</button>
-          <button class="action-btn danger-btn delete-btn" type="button">Delete</button>
+          <button class="action-btn danger-btn unenroll-btn" type="button">Unenroll</button>
         </td>
       </tr>
     `;
-  }
-
+  });
   coursesBody.innerHTML = html;
 }
 
-// SAVE (Add/Edit) using the same modal
-form.addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const code = codeInput.value.trim();
-  const name = nameInput.value.trim();
-  const instructor = instructorInput.value.trim();
-  const term = termSelect.value;
-
-  if (!code || !name || !instructor || !term) return;
-
-  if (editingCourseId) {
-    // EDIT mode
-    for (let i = 0; i < courses.length; i++) {
-      if (courses[i].id === editingCourseId) {
-        courses[i].code = code;
-        courses[i].name = name;
-        courses[i].instructor = instructor;
-        courses[i].term = term;
-        break;
-      }
-    }
-  } else {
-    // ADD mode
-    courses.push({
-      id: "C_" + Date.now(),
-      code: code,
-      name: name,
-      instructor: instructor,
-      term: term,
-      assessments: []
-    });
-  }
-
-  closeForm();
-  renderCourses();
+// unenroll
+coursesBody.addEventListener("click", async function (e) {
+  if (!e.target.classList.contains("unenroll-btn")) return;
+  const row = e.target.closest("tr");
+  const id = row.dataset.id;
+  if (!confirm("Unenroll from this course?")) return;
+  await fetch(`http://localhost:8000/api/courses/${id}/enroll`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  loadCourses();
 });
 
-// table actions (Delete + Edit)
-coursesBody.addEventListener("click", function (e) {
-  const row = e.target.closest("tr");
-  if (!row) return;
+// search and enroll
+const addCourseBtn = document.getElementById("addCourseBtn");
+const popup = document.getElementById("courseFormPopup");
+const closeBtn = document.getElementById("closeCourseForm");
+const cancelBtn = document.getElementById("cancelCourseForm");
+const form = document.getElementById("addCourseForm");
+const codeInput = form.querySelector('input[name="code"]');
 
-  const id = row.dataset.id;
+addCourseBtn.addEventListener("click", () => popup.classList.remove("hidden"));
+closeBtn.addEventListener("click", () => popup.classList.add("hidden"));
+cancelBtn.addEventListener("click", () => popup.classList.add("hidden"));
 
-  // DELETE
-  if (e.target.classList.contains("delete-btn")) {
-    const ok = confirm("Delete this course?");
-    if (!ok) return;
+form.addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const query = codeInput.value.trim();
+  if (!query) return;
 
-    for (let i = 0; i < courses.length; i++) {
-      if (courses[i].id === id) {
-        courses.splice(i, 1);
-        break;
-      }
-    }
+  // search for course
+  const res = await fetch(`http://localhost:8000/api/courses/search?q=${encodeURIComponent(query)}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const results = await res.json();
 
-    renderCourses();
+  if (results.length === 0) {
+    alert("No course found with that code.");
     return;
   }
 
-  // EDIT (open modal and prefill)
-  if (e.target.classList.contains("edit-btn")) {
-    let course = null;
-
-    for (let i = 0; i < courses.length; i++) {
-      if (courses[i].id === id) {
-        course = courses[i];
-        break;
-      }
-    }
-
-    if (!course) return;
-
-    openFormEdit(course);
-  }
+  // enroll in first match
+  const course = results[0];
+  const enrollRes = await fetch(`http://localhost:8000/api/courses/${course._id}/enroll`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await enrollRes.json();
+  alert(data.message);
+  popup.classList.add("hidden");
+  form.reset();
+  loadCourses();
 });
 
-renderCourses();
+loadCourses();
