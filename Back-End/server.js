@@ -4,8 +4,9 @@ import { connectDB } from "./db.js";
 import authRoutes from "./routes/auth.js";
 import courseRoutes from "./routes/courses.js";
 import assessmentRoutes from "./routes/assessments.js";
+import gpaRoutes from "./routes/gpa.js";
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8000;
 const app = express();
 
 // Allow frontend to talk to backend
@@ -22,6 +23,9 @@ app.use("/api/courses", courseRoutes);
 
 // assessment routes
 app.use("/api/assessments", assessmentRoutes);
+
+// GPA routes
+app.use("/api/gpa", gpaRoutes);
 
 connectDB();
 

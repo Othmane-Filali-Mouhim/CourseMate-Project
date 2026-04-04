@@ -33,7 +33,7 @@ router.get("/", protect, async (req, res) => {
       const assessments = await Assessment.find({
         course: course._id,
         status: "completed",
-        isTemplate: false  // Student-specific assessments
+        isTemplate: false
       });
 
       let courseTotalMarks = 0;
@@ -44,14 +44,12 @@ router.get("/", protect, async (req, res) => {
         courseEarnedMarks += assessment.earnedMarks || 0;
         courseTotalMarks += assessment.totalMarks || 0;
         
-        // Calculate weighted score based on weight percentage
         if (assessment.weight && assessment.totalMarks) {
           const percentageScore = (assessment.earnedMarks / assessment.totalMarks) * 100;
           courseWeightedTotal += (percentageScore * (assessment.weight / 100));
         }
       }
 
-      // Calculate course percentage (0-100)
       let coursePercentage = 0;
       if (courseTotalMarks > 0) {
         coursePercentage = (courseEarnedMarks / courseTotalMarks) * 100;
@@ -59,7 +57,7 @@ router.get("/", protect, async (req, res) => {
         coursePercentage = courseWeightedTotal;
       }
 
-      // Convert percentage to letter grade and grade points (standard 4.0 scale)
+      // Convert percentage to letter grade and grade points
       let letterGrade = "F";
       let gradePoints = 0;
 
@@ -104,7 +102,6 @@ router.get("/", protect, async (req, res) => {
         gradePoints = 0.0;
       }
 
-      // Assume 3 credits per course 
       const credits = 3;
       totalGradePoints += gradePoints * credits;
       totalCredits += credits;
@@ -119,7 +116,6 @@ router.get("/", protect, async (req, res) => {
       });
     }
 
-    // Calculate overall GPA
     const gpa = totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : 0;
 
     res.status(200).json({
@@ -133,63 +129,6 @@ router.get("/", protect, async (req, res) => {
   } catch (error) {
     console.log("ERROR in GPA calculation:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
-  }
-});
-
-// GET GPA for a specific course
-router.get("/course/:courseId", protect, async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.courseId);
-    
-    if (!course) {
-      return res.status(404).json({ message: "Course not found" });
-    }
-
-    // Check if student is enrolled
-    if (!course.enrolledStudents.includes(req.user.userId)) {
-      return res.status(403).json({ message: "Not enrolled in this course" });
-    }
-
-    const assessments = await Assessment.find({
-      course: course._id,
-      status: "completed",
-      isTemplate: false
-    });
-
-    let courseTotalMarks = 0;
-    let courseEarnedMarks = 0;
-    let courseWeightedTotal = 0;
-
-    for (const assessment of assessments) {
-      courseEarnedMarks += assessment.earnedMarks || 0;
-      courseTotalMarks += assessment.totalMarks || 0;
-      
-      if (assessment.weight && assessment.totalMarks) {
-        const percentageScore = (assessment.earnedMarks / assessment.totalMarks) * 100;
-        courseWeightedTotal += (percentageScore * (assessment.weight / 100));
-      }
-    }
-
-    let coursePercentage = 0;
-    if (courseTotalMarks > 0) {
-      coursePercentage = (courseEarnedMarks / courseTotalMarks) * 100;
-    } else if (courseWeightedTotal > 0) {
-      coursePercentage = courseWeightedTotal;
-    }
-
-    res.status(200).json({
-      courseCode: course.courseCode,
-      courseName: course.name,
-      percentage: coursePercentage.toFixed(2),
-      totalEarnedMarks: courseEarnedMarks,
-      totalPossibleMarks: courseTotalMarks,
-      assessmentsCompleted: assessments.length,
-      assessmentsBreakdown: assessments
-    });
-
-  } catch (error) {
-    console.log("ERROR:", error.message);
-    res.status(500).json({ message: "Server error" });
   }
 });
 
