@@ -6,6 +6,7 @@
   <title>Student Assessments</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <link rel="stylesheet" href="css/student-assessment.css">
+  <link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
   <nav class="navbar">
@@ -34,6 +35,8 @@
       <div style="display:flex; gap:10px;">
         <button class="primary-btn" id="changeCourseBtn">Change Course</button>
         <button class="primary-btn" id="btnAddAssessment">+ Add Assessment</button>
+        <button class="primary-btn" id="btnExportPDF">Export PDF</button>
+        <button class="primary-btn" id="btnExportCSV">Export CSV</button>
       </div>
     </section>
 
@@ -144,5 +147,7 @@
   </div>
 
   <script src="js/student-assessment.js"></script>
+  <script src="js/theme.js"></script>
+    <button class="theme-toggle" id="themeToggle">Dark Mode</button>
 </body>
 </html>

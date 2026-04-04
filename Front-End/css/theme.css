@@ -1,0 +1,264 @@
+/* ─── CourseMate Theme System ─────────────────────────
+   Only dark mode overrides are defined here.
+   Light mode = your original CSS unchanged.
+──────────────────────────────────────────────────── */
+
+/* ===== BODY ===== */
+[data-theme="dark"] body {
+    background-color: #0f1117 !important;
+    color: #9CA3AF !important;
+}
+
+/* ===== NAVBAR ===== */
+[data-theme="dark"] .navbar {
+    background-color: #1a1d27 !important;
+    border-bottom: 1px solid #2d3148 !important;
+}
+[data-theme="dark"] .navbar a {
+    color: #9CA3AF !important;
+}
+[data-theme="dark"] .navbar a:hover {
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] #title {
+    color: #38bdf8 !important;
+}
+
+/* ===== AUTH BUTTONS ===== */
+[data-theme="dark"] #signBtn {
+    color: white !important;
+}
+[data-theme="dark"] #loginBtn {
+    background-color: #1e2132 !important;
+    border-color: #38bdf8 !important;
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] #loginBtn:hover {
+    background-color: #38bdf8 !important;
+    color: white !important;
+}
+
+/* ===== HEADINGS ===== */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+    color: #F9FAFB !important;
+}
+[data-theme="dark"] p {
+    color: #9CA3AF !important;
+}
+
+/* ===== CARDS ===== */
+[data-theme="dark"] .card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .dashboard-card,
+[data-theme="dark"] .overview-card,
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .signup-box,
+[data-theme="dark"] .modal-card,
+[data-theme="dark"] .form-card,
+[data-theme="dark"] .category-card,
+[data-theme="dark"] .course-card,
+[data-theme="dark"] .courses-card,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .stat-card {
+    background-color: #1e2132 !important;
+    border-color: #2d3148 !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ===== OVERVIEW CARDS (instructor dashboard) ===== */
+[data-theme="dark"] .overview-card {
+    background-color: #1e2132 !important;
+}
+[data-theme="dark"] .overview-card h4 {
+    color: #9CA3AF !important;
+}
+[data-theme="dark"] .overview-card p {
+    color: #F9FAFB !important;
+    font-size: 26px !important;
+    font-weight: 600 !important;
+}
+
+/* ===== DASHBOARD CARDS ===== */
+[data-theme="dark"] .dashboard-card {
+    background-color: #252840 !important;
+}
+[data-theme="dark"] .dashboard-card h3 {
+    color: #60a5fa !important;
+}
+[data-theme="dark"] .dashboard-card p {
+    color: #9CA3AF !important;
+}
+
+/* ===== HERO ===== */
+[data-theme="dark"] .hero {
+    background: linear-gradient(180deg, #0f1117 0%, #1a1d27 60%, #1e2132 100%) !important;
+}
+[data-theme="dark"] .hero h1 {
+    color: #F9FAFB !important;
+}
+[data-theme="dark"] .hero p {
+    color: #9CA3AF !important;
+}
+
+/* ===== FEATURES ===== */
+[data-theme="dark"] .features {
+    background: linear-gradient(180deg, #1e2132 0%, #1a1d27 60%, #0f1117 100%) !important;
+}
+[data-theme="dark"] .features h2 {
+    color: #F9FAFB !important;
+}
+[data-theme="dark"] .features-subtitle {
+    color: #6B7280 !important;
+}
+[data-theme="dark"] .feature-card {
+    background: #1e2132 !important;
+}
+[data-theme="dark"] .feature-card h3 {
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .feature-card p {
+    color: #9CA3AF !important;
+}
+[data-theme="dark"] .section-label {
+    background-color: #1e2d45 !important;
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .instructor-features {
+    background: linear-gradient(180deg, #0f1117 0%, #1a1d27 60%, #1e2132 100%) !important;
+}
+
+/* ===== FOOTER ===== */
+[data-theme="dark"] .footer {
+    background: #0f1117 !important;
+    background-image: none !important;
+}
+[data-theme="dark"] .footer-container {
+    background: transparent !important;
+}
+[data-theme="dark"] .footer-links h4 {
+    color: #F9FAFB !important;
+}
+[data-theme="dark"] .footer-links a {
+    color: #9CA3AF !important;
+}
+[data-theme="dark"] .footer-links a:hover {
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .footer-bottom {
+    border-color: #2d3148 !important;
+    color: #6B7280 !important;
+    background: transparent !important;
+}
+
+/* ===== INPUTS ===== */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: #252840 !important;
+    border-color: #2d3148 !important;
+    color: #F9FAFB !important;
+}
+[data-theme="dark"] input::placeholder {
+    color: #6B7280 !important;
+}
+[data-theme="dark"] label {
+    color: #F9FAFB !important;
+}
+
+/* ===== PROFILE DROPDOWN ===== */
+[data-theme="dark"] .profile-dropdown {
+    background-color: #1e2132 !important;
+    border: 1px solid #2d3148 !important;
+}
+[data-theme="dark"] .profile-dropdown a {
+    color: #9CA3AF !important;
+}
+[data-theme="dark"] .profile-dropdown a:hover {
+    background-color: #252840 !important;
+    color: #38bdf8 !important;
+}
+
+/* ===== MODAL ===== */
+[data-theme="dark"] .modal {
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* ===== TABLES ===== */
+[data-theme="dark"] .table th,
+[data-theme="dark"] .courses-table thead th {
+    background-color: #252840 !important;
+    color: #9CA3AF !important;
+    border-color: #2d3148 !important;
+}
+[data-theme="dark"] .table td,
+[data-theme="dark"] .courses-table td {
+    border-color: #2d3148 !important;
+    color: #F9FAFB !important;
+}
+[data-theme="dark"] .table tbody tr:hover,
+[data-theme="dark"] .courses-table tbody tr:hover {
+    background-color: #252840 !important;
+}
+
+/* ===== AUTH PAGES ===== */
+[data-theme="dark"] .auth-page,
+[data-theme="dark"] .signup-page {
+    background: linear-gradient(180deg, #0f1117 0%, #1a1d27 60%, #1e2132 100%) !important;
+}
+
+/* ===== ROLE OPTIONS (signup) ===== */
+[data-theme="dark"] .role-option {
+    color: #F9FAFB !important;
+    border-color: #2d3148 !important;
+    background-color: #252840 !important;
+}
+
+/* ===== PAGE TITLES ===== */
+[data-theme="dark"] .page-title,
+[data-theme="dark"] .card-title,
+[data-theme="dark"] .section-title {
+    color: #F9FAFB !important;
+}
+
+/* ===== DASHBOARD HEADER ===== */
+[data-theme="dark"] .dashboard-header h1 {
+    color: #F9FAFB !important;
+}
+[data-theme="dark"] .dashboard-header p {
+    color: #9CA3AF !important;
+}
+
+/* ===== THEME TOGGLE BUTTON ===== */
+.theme-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    background-color: #DAECF7;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0093F4;
+    border: 1px solid #0093F4;
+    border-radius: 10px;
+    padding: 11px 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.theme-toggle:hover {
+    color: white;
+    background-color: #0093F4;
+}
+[data-theme="dark"] .theme-toggle {
+    background-color: #1e2d45;
+    color: #38bdf8;
+    border-color: #38bdf8;
+}
+[data-theme="dark"] .theme-toggle:hover {
+    background-color: #38bdf8;
+    color: white;
+}

@@ -6,6 +6,8 @@ let courseId = params.get("courseId");
 
 let studentAssessments = [];
 let templates = [];
+let stats = null;
+let currentCourse = null;
 
 // ----- Profile dropdown -----
 const menu = document.querySelector(".profile-menu");
@@ -15,6 +17,7 @@ menu.addEventListener("click", (e) => {
   dropdown.classList.toggle("open");
   e.stopPropagation();
 });
+
 document.addEventListener("click", (e) => {
   if (!menu.contains(e.target)) dropdown.classList.remove("open");
 });
@@ -44,51 +47,65 @@ async function loadData() {
   const courseRes = await fetch(`${BASE_URL}/courses/enrolled`, {
     headers: { Authorization: `Bearer ${token}` }
   });
+
   const courses = await courseRes.json();
 
-  // populate course selector modal
   courseSelectList.innerHTML = "";
+
   if (!courses || courses.length === 0) {
     courseSelectList.innerHTML = "<p>No enrolled courses found.</p>";
     return;
   }
 
-  courses.forEach(course => {
+  courses.forEach((course) => {
     const btn = document.createElement("button");
     btn.classList.add("course-select-btn");
     btn.textContent = `${course.courseCode} — ${course.name}`;
+
     btn.onclick = () => {
       courseId = course._id;
       window.history.pushState({}, "", `?courseId=${course._id}`);
       courseSelectModal.classList.remove("show");
       loadCourseData(course);
     };
+
     courseSelectList.appendChild(btn);
   });
 
-  // if courseId in URL, load it directly
   if (courseId) {
-    const course = courses.find(c => c._id === courseId);
+    const course = courses.find((c) => c._id === courseId);
     if (course) {
       courseSelectModal.classList.remove("show");
       loadCourseData(course);
     }
   }
-  // otherwise modal stays open
 }
 
 async function loadCourseData(course) {
+  currentCourse = course;
   courseTitle.textContent = `${course.courseCode} — ${course.name}`;
 
   const res = await fetch(`${BASE_URL}/assessments/student/${course._id}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
+
   const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.message || "Failed to load assessments.");
+    return;
+  }
 
   templates = data.templates || [];
   studentAssessments = data.studentAssessments || [];
+  stats = data.stats || null;
 
   renderAll();
+}
+
+async function refreshCurrentCourse() {
+  if (!currentCourse) return;
+  await loadCourseData(currentCourse);
 }
 
 // ----- RENDER -----
@@ -104,7 +121,7 @@ function renderTemplates() {
     return;
   }
 
-  templateRows.innerHTML = templates.map(t => `
+  templateRows.innerHTML = templates.map((t) => `
     <tr>
       <td>${t.title}</td>
       <td>${t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "—"}</td>
@@ -122,7 +139,7 @@ function renderStudentAssessments() {
     return;
   }
 
-  assessmentRows.innerHTML = studentAssessments.map(a => `
+  assessmentRows.innerHTML = studentAssessments.map((a) => `
     <tr>
       <td>${a.title}</td>
       <td>${a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "—"}</td>
@@ -145,23 +162,16 @@ function renderStats() {
   const progressBar = document.getElementById("progressBar");
   const progressText = document.getElementById("progressText");
 
-  const completed = studentAssessments.filter(a => a.status === "completed").length;
-  const total = studentAssessments.length;
-  const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+  if (!stats) {
+    avgEl.textContent = "--%";
+    progressBar.style.width = "0%";
+    progressText.textContent = "0/0";
+    return;
+  }
 
-  progressBar.style.width = `${percent}%`;
-  progressText.textContent = `${completed}/${total}`;
-
-  let weightSum = 0;
-  let scoreSum = 0;
-  studentAssessments.forEach(a => {
-    if (a.earnedMarks !== null && a.earnedMarks !== undefined && a.weight) {
-      weightSum += a.weight;
-      scoreSum += a.earnedMarks * a.weight;
-    }
-  });
-
-  avgEl.textContent = weightSum === 0 ? "--%"  : `${Math.round(scoreSum / weightSum)}%`;
+  avgEl.textContent = stats.average === null ? "--%" : `${stats.average}%`;
+  progressBar.style.width = `${stats.progressPercent}%`;
+  progressText.textContent = `${stats.completed}/${stats.total}`;
 }
 
 // ----- CHANGE COURSE -----
@@ -175,6 +185,7 @@ addBtn.addEventListener("click", () => {
     alert("Please select a course first.");
     return;
   }
+
   editingId = "";
   modalTitle.textContent = "Add Assessment";
   form.reset();
@@ -195,7 +206,7 @@ form.addEventListener("submit", async (e) => {
     courseId,
     title: nameInput.value.trim(),
     dueDate: dueInput.value,
-    earnedMarks: gradeInput.value ? Number(gradeInput.value) : null,
+    earnedMarks: gradeInput.value === "" ? null : Number(gradeInput.value),
     weight: Number(weightInput.value),
     status: statusSelect.value,
     category: "assignment",
@@ -212,8 +223,13 @@ form.addEventListener("submit", async (e) => {
       },
       body: JSON.stringify(body)
     });
-    const updated = await res.json();
-    studentAssessments = studentAssessments.map(a => a._id === editingId ? updated : a);
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Failed to update assessment.");
+      return;
+    }
   } else {
     const res = await fetch(`${BASE_URL}/assessments`, {
       method: "POST",
@@ -223,14 +239,19 @@ form.addEventListener("submit", async (e) => {
       },
       body: JSON.stringify(body)
     });
+
     const data = await res.json();
-    studentAssessments.push(data.assessment);
+
+    if (!res.ok) {
+      alert(data.message || "Failed to create assessment.");
+      return;
+    }
   }
 
   popup.classList.add("hidden");
   form.reset();
   editingId = "";
-  renderAll();
+  await refreshCurrentCourse();
 });
 
 // ----- TABLE ACTIONS -----
@@ -238,8 +259,9 @@ assessmentRows.addEventListener("click", async (e) => {
   const id = e.target.dataset.id;
 
   if (e.target.classList.contains("edit-btn")) {
-    const a = studentAssessments.find(a => a._id === id);
+    const a = studentAssessments.find((a) => a._id === id);
     if (!a) return;
+
     editingId = id;
     modalTitle.textContent = "Edit Assessment";
     nameInput.value = a.title;
@@ -253,12 +275,20 @@ assessmentRows.addEventListener("click", async (e) => {
   if (e.target.classList.contains("delete-btn")) {
     const ok = confirm("Delete this assessment?");
     if (!ok) return;
-    await fetch(`${BASE_URL}/assessments/${id}`, {
+
+    const res = await fetch(`${BASE_URL}/assessments/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
-    studentAssessments = studentAssessments.filter(a => a._id !== id);
-    renderAll();
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Failed to delete assessment.");
+      return;
+    }
+
+    await refreshCurrentCourse();
   }
 });
 
@@ -266,7 +296,8 @@ assessmentRows.addEventListener("click", async (e) => {
 assessmentRows.addEventListener("change", async (e) => {
   if (e.target.classList.contains("status-select")) {
     const id = e.target.dataset.id;
-    await fetch(`${BASE_URL}/assessments/${id}`, {
+
+    const res = await fetch(`${BASE_URL}/assessments/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -274,10 +305,15 @@ assessmentRows.addEventListener("change", async (e) => {
       },
       body: JSON.stringify({ status: e.target.value })
     });
-    studentAssessments = studentAssessments.map(a =>
-      a._id === id ? { ...a, status: e.target.value } : a
-    );
-    renderStats();
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Failed to update status.");
+      return;
+    }
+
+    await refreshCurrentCourse();
   }
 });
 
@@ -285,15 +321,66 @@ assessmentRows.addEventListener("change", async (e) => {
 templateRows.addEventListener("click", async (e) => {
   if (e.target.classList.contains("use-template-btn")) {
     const id = e.target.dataset.id;
+
     const res = await fetch(`${BASE_URL}/assessments/copy/${id}`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` }
     });
+
     const data = await res.json();
-    studentAssessments.push(data.assessment);
-    renderAll();
+
+    if (!res.ok) {
+      alert(data.message || "Failed to use template.");
+      return;
+    }
+
+    await refreshCurrentCourse();
   }
 });
+// ----- EXPORT -----
+async function exportGrades(format) {
+  if (!courseId) {
+    alert("Please select a course first.");
+    return;
+  }
+
+  const res = await fetch(
+    `${BASE_URL}/assessments/export/${courseId}?format=${format}`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
+  );
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Export failed:", text);
+    alert("Failed to export grades.");
+    return;
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = `grades.${format}`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+}
+
+const exportPdfBtn = document.getElementById("btnExportPDF");
+const exportCsvBtn = document.getElementById("btnExportCSV");
+
+if (exportPdfBtn) {
+  exportPdfBtn.addEventListener("click", () => exportGrades("pdf"));
+}
+
+if (exportCsvBtn) {
+  exportCsvBtn.addEventListener("click", () => exportGrades("csv"));
+}
 
 // ----- INIT -----
 loadData();

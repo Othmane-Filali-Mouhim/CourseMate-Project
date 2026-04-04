@@ -1,6 +1,6 @@
 // Auth + API
 const token = localStorage.getItem("token");
-const BASE_URL = "http://localhost:8000/api/courses";
+const BASE_URL = "http://localhost:8000/api";
 
 // Profile dropdown
 const menu = document.querySelector(".profile-menu");
@@ -31,43 +31,27 @@ const avgCompletionEl = document.getElementById("avgCompletion");
 
 async function loadDashboardStats() {
   try {
-    const response = await fetch(BASE_URL, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
+    // Fetch courses and analytics summary in parallel
+    const [courseRes, summaryRes] = await Promise.all([
+      fetch(`${BASE_URL}/courses`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }),
+      fetch(`${BASE_URL}/assessments/analytics-summary`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    ]);
 
-    const courses = await response.json();
+    const courses = await courseRes.json();
+    const summary = await summaryRes.json();
 
-    // Total courses
-    const total = courses.length;
-
-    //Active courses
-    const active = courses.filter(c => c.isActive).length;
-
-    // Avg completion
-    let avg = 0;
-
-    if (courses.length > 0) {
-      
-      const sum = courses.reduce((acc, c) => {
-        return acc + (c.completionPercentage ?? Math.floor(Math.random() * 100));
-      }, 0);
-
-      avg = Math.round(sum / courses.length);
-    }
-
-    // Update UI
-    totalCoursesEl.textContent = total;
-    activeCoursesEl.textContent = active;
-    avgCompletionEl.textContent = avg + "%";
+    totalCoursesEl.textContent = courses.length;
+    activeCoursesEl.textContent = courses.filter(c => c.isActive).length;
+    avgCompletionEl.textContent = `${summary.avgCompletion ?? 0}%`;
 
   } catch (error) {
     console.log("Error loading stats:", error);
   }
 }
-
-
 
 // Logout
 
