@@ -56,7 +56,16 @@ router.post("/copy/:id", protect, async (req, res) => {
 // CREATE assessment (instructor or student)
 router.post("/", protect, async (req, res) => {
   try {
-    const { courseId, title, category, weight, totalMarks, dueDate, isTemplate } = req.body;
+    const {
+      courseId,
+      title,
+      category,
+      weight,
+      totalMarks,
+      dueDate,
+      earnedMarks,
+      status
+    } = req.body;
 
     if (!courseId || !title || !weight) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -65,7 +74,6 @@ router.post("/", protect, async (req, res) => {
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: "Course not found" });
 
-    // instructor creating template
     const isInstructorTemplate = course.instructor.toString() === req.user.userId;
 
     const assessment = await Assessment.create({
@@ -73,15 +81,18 @@ router.post("/", protect, async (req, res) => {
       createdBy: req.user.userId,
       title,
       category: category || "assignment",
-      weight,
-      totalMarks: totalMarks || 100,
+      weight: Number(weight),
+      totalMarks: totalMarks ? Number(totalMarks) : 100,
       dueDate,
+      earnedMarks: earnedMarks === null || earnedMarks === undefined ? null : Number(earnedMarks),
       isTemplate: isInstructorTemplate ? true : false,
-      status: "pending"
+      status: status || "pending"
     });
 
-    res.status(201).json({ message: "Assessment created successfully", assessment });
-
+    res.status(201).json({
+      message: "Assessment created successfully",
+      assessment
+    });
   } catch (error) {
     console.log("ERROR:", error.message);
     res.status(500).json({ message: "Server error" });
