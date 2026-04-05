@@ -57,24 +57,29 @@ async function loadCourses() {
 
   } catch (error) {
     console.error("ERROR:", error);
+    showNotif("Failed to load courses.", "error");
   }
 }
 
 // ----- SELECT COURSE -----
 async function selectCourse(course) {
-  selectedCourse = course;
+  try {
+    selectedCourse = course;
 
-  const response = await fetch(`${BASE_URL}/assessments/${course._id}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const data = await response.json();
-  categories = data;
+    const response = await fetch(`${BASE_URL}/assessments/${course._id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await response.json();
+    categories = data;
 
-  document.getElementById("courseSelectModal").classList.remove("show");
-  document.getElementById("pageTitle").textContent =
-    `Assessment Structure — ${course.courseCode} - ${course.name}`;
+    document.getElementById("courseSelectModal").classList.remove("show");
+    document.getElementById("pageTitle").textContent =
+      `Assessment Structure — ${course.courseCode} - ${course.name}`;
 
-  renderCategories();
+    renderCategories();
+  } catch (error) {
+    showNotif("Failed to load assessments.", "error");
+  }
 }
 
 // ----- RENDER -----
@@ -126,9 +131,10 @@ function updateTotalWeight() {
 // ----- MODAL -----
 function openModalForAdd() {
   if (!selectedCourse) {
-    alert("Select a course first");
+    showNotif("Select a course first", "warning");
     return;
   }
+
   modalTitle.textContent = "Add Category";
   form.reset();
   editIdInput.value = "";
@@ -166,42 +172,61 @@ form.addEventListener("submit", async (e) => {
   const weight = Number(weightInput.value);
   const dueDate = dueDateInput.value;
 
-  if (editId) {
-    // UPDATE
-    const response = await fetch(`${BASE_URL}/assessments/${editId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ title, weight, dueDate })
-    });
-    const updated = await response.json();
-    categories = categories.map(cat => cat._id === editId ? updated : cat);
+  try {
+    if (editId) {
+      const response = await fetch(`${BASE_URL}/assessments/${editId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ title, weight, dueDate })
+      });
 
-  } else {
-    // CREATE
-    const response = await fetch(`${BASE_URL}/assessments`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        courseId: selectedCourse._id,
-        title,
-        weight,
-        dueDate,
-        category: "assignment",
-        totalMarks: 100,
-      })
-    });
-    const data = await response.json();
-    categories.push(data.assessment);
+      const updated = await response.json();
+
+      if (!response.ok) {
+        showNotif(updated.message || "Failed to update assessment.", "error");
+        return;
+      }
+
+      categories = categories.map(cat => cat._id === editId ? updated : cat);
+      showNotif("Assessment updated successfully.", "success");
+
+    } else {
+      const response = await fetch(`${BASE_URL}/assessments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          courseId: selectedCourse._id,
+          title,
+          weight,
+          dueDate,
+          category: "assignment",
+          totalMarks: 100,
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showNotif(data.message || "Failed to create assessment.", "error");
+        return;
+      }
+
+      categories.push(data.assessment);
+      showNotif("Assessment created successfully.", "success");
+    }
+
+    closeModal();
+    renderCategories();
+
+  } catch (error) {
+    showNotif("Server error while saving assessment.", "error");
   }
-
-  closeModal();
-  renderCategories();
 });
 
 // EDIT / DELETE
@@ -214,17 +239,32 @@ categoriesList.addEventListener("click", (e) => {
   }
 
   if (e.target.classList.contains("delete-btn")) {
-    deleteAssessment(id);
+    showConfirm("Delete this assessment?", () => {
+      deleteAssessment(id);
+    });
   }
 });
 
 async function deleteAssessment(id) {
-  await fetch(`${BASE_URL}/assessments/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  categories = categories.filter(c => c._id !== id);
-  renderCategories();
+  try {
+    const response = await fetch(`${BASE_URL}/assessments/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      showNotif(data.message || "Failed to delete assessment.", "error");
+      return;
+    }
+
+    categories = categories.filter(c => c._id !== id);
+    renderCategories();
+    showNotif("Assessment deleted successfully.", "success");
+
+  } catch (error) {
+    showNotif("Server error while deleting assessment.", "error");
+  }
 }
 
 // ----- INIT -----

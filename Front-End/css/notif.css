@@ -1,0 +1,131 @@
+/* ===== TOAST NOTIFICATIONS ===== */
+.notif {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+  max-width: 320px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.notif.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notif-success {
+  background-color: #059669;
+}
+
+.notif-error {
+  background-color: #dc2626;
+}
+
+.notif-warning {
+  background-color: #d97706;
+}
+
+/* ===== CONFIRM NOTIFICATION ===== */
+.confirm-notif {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background-color: #f59e0b;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 10000;
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+
+.confirm-notif.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.confirm-notif-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.confirm-notif-message {
+  line-height: 1.4;
+}
+
+.confirm-notif-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.confirm-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.confirm-btn-yes {
+  background-color: #ffffff;
+  color: #92400e;
+}
+
+.confirm-btn-yes:hover {
+  background-color: #f9fafb;
+}
+
+.confirm-btn-no {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.confirm-btn-no:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+[data-theme="dark"] .notif {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .confirm-notif {
+  background-color: #b45309;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .confirm-btn-yes {
+  background-color: #f3f4f6;
+  color: #78350f;
+}
+
+[data-theme="dark"] .confirm-btn-yes:hover {
+  background-color: #e5e7eb;
+}
+
+[data-theme="dark"] .confirm-btn-no {
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .confirm-btn-no:hover {
+  background-color: rgba(255, 255, 255, 0.24);
+}

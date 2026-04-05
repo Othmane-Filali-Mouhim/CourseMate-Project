@@ -92,9 +92,9 @@ async function loadCourseData(course) {
   const data = await res.json();
 
   if (!res.ok) {
-    alert(data.message || "Failed to load assessments.");
-    return;
-  }
+  showNotif(data.message || "Failed to load assessments.", "error");
+  return;
+}
 
   templates = data.templates || [];
   studentAssessments = data.studentAssessments || [];
@@ -181,10 +181,10 @@ document.getElementById("changeCourseBtn").addEventListener("click", () => {
 
 // ----- OPEN / CLOSE MODAL -----
 addBtn.addEventListener("click", () => {
-  if (!courseId) {
-    alert("Please select a course first.");
-    return;
-  }
+ if (!courseId) {
+  showNotif("Please select a course first.", "warning");
+  return;
+}
 
   editingId = "";
   modalTitle.textContent = "Add Assessment";
@@ -227,9 +227,10 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.message || "Failed to update assessment.");
-      return;
-    }
+  showNotif(data.message || "Failed to update assessment.", "error");
+  return;
+}
+  showNotif("Assessment updated successfully", "success");
   } else {
     const res = await fetch(`${BASE_URL}/assessments`, {
       method: "POST",
@@ -243,9 +244,11 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.message || "Failed to create assessment.");
-      return;
-    }
+  showNotif(data.message || "Failed to create assessment.", "error");
+  return;
+}
+
+showNotif("Assessment created successfully", "success");
   }
 
   popup.classList.add("hidden");
@@ -273,9 +276,7 @@ assessmentRows.addEventListener("click", async (e) => {
   }
 
   if (e.target.classList.contains("delete-btn")) {
-    const ok = confirm("Delete this assessment?");
-    if (!ok) return;
-
+  showConfirm("Delete this assessment?", async () => {
     const res = await fetch(`${BASE_URL}/assessments/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
@@ -284,12 +285,14 @@ assessmentRows.addEventListener("click", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.message || "Failed to delete assessment.");
+      showNotif(data.message || "Failed to delete assessment.", "error");
       return;
     }
 
+    showNotif("Assessment deleted", "success");
     await refreshCurrentCourse();
-  }
+  });
+}
 });
 
 // ----- STATUS CHANGE -----

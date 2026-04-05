@@ -18,16 +18,20 @@ const form = document.getElementById("courseForm");
 const idInput = document.getElementById("courseIdInput");
 const nameInput = document.getElementById("courseNameInput");
 const termInput = document.getElementById("courseTermInput");
+const coursesList = document.getElementById("coursesList");
 
 // OPEN modal
 document.getElementById("addCourseBtn").addEventListener("click", () => {
   form.reset();
+  delete form.dataset.editId;
   modal.classList.add("show");
 });
 
 // CLOSE modal
 document.getElementById("cancelBtn").addEventListener("click", () => {
   modal.classList.remove("show");
+  form.reset();
+  delete form.dataset.editId;
 });
 
 // SUBMIT - add course
@@ -36,40 +40,46 @@ form.addEventListener("submit", async function (e) {
 
   const editId = form.dataset.editId;
 
-  const url = editId 
-    ? `${BASE_URL}/${editId}`   // update
-    : BASE_URL;                 // create
+  const url = editId
+    ? `${BASE_URL}/${editId}`
+    : BASE_URL;
 
   const method = editId ? "PUT" : "POST";
 
-  const response = await fetch(url, {
-    method: method,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify({
-      courseCode: idInput.value,
-      name: nameInput.value,
-      term: termInput.value
-    })
-  });
+  try {
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        courseCode: idInput.value,
+        name: nameInput.value,
+        term: termInput.value
+      })
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (response.ok) {
-    alert(editId ? "Course updated!" : "Course created!");
-    
-    modal.classList.remove("show");
-    form.reset();
-    delete form.dataset.editId; // 🔥 IMPORTANT: reset mode
+    if (response.ok) {
+      showNotif(editId ? "Course updated!" : "Course created!", "success");
 
-    await fetchCourses();
-  } else {
-    alert(data.message);
+      modal.classList.remove("show");
+      form.reset();
+      delete form.dataset.editId;
+
+      await fetchCourses();
+    } else {
+      showNotif(data.message || "Failed to save course.", "error");
+    }
+  } catch (error) {
+    showNotif("Server error while saving course.", "error");
   }
 });
+
 let currentCourses = [];
+
 // fetch all the courses
 async function fetchCourses() {
   try {
@@ -82,8 +92,10 @@ async function fetchCourses() {
     renderCourses(data);
   } catch (error) {
     console.log("Error fetching courses:", error);
+    showNotif("Error fetching courses.", "error");
   }
 }
+
 // RENDER courses on the page
 function renderCourses(courses) {
   coursesList.innerHTML = "";
@@ -115,8 +127,7 @@ function renderCourses(courses) {
 }
 
 document.addEventListener("click", async (e) => {
-
-  //  EDIT
+  // EDIT
   if (e.target.classList.contains("edit-btn")) {
     const id = e.target.dataset.id;
 
@@ -128,38 +139,37 @@ document.addEventListener("click", async (e) => {
     termInput.value = course.term;
 
     form.dataset.editId = id;
-
     modal.classList.add("show");
   }
 
-  //  DELETE
+  // DELETE
   if (e.target.classList.contains("delete-btn")) {
     const id = e.target.dataset.id;
 
-    const confirmDelete = confirm("Delete this course?");
-    if (!confirmDelete) return;
+    showConfirm("Delete this course?", async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/${id}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
 
-    try {
-      const response = await fetch(`${BASE_URL}/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message);
         }
-      });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message);
+        showNotif("Course deleted successfully.", "success");
+        await fetchCourses();
+
+      } catch (error) {
+        showNotif(error.message || "Failed to delete course.", "error");
       }
-
-      await fetchCourses();
-
-    } catch (error) {
-      alert(error.message);
-    }
+    });
   }
 
-  // 🔁 TOGGLE ENABLE/DISABLE
+  // TOGGLE ENABLE/DISABLE
   if (e.target.classList.contains("toggle-btn")) {
     const id = e.target.dataset.id;
 
@@ -176,15 +186,17 @@ document.addEventListener("click", async (e) => {
         throw new Error(data.message);
       }
 
+      const course = currentCourses.find(c => c._id === id);
+      const actionText = course && course.isActive ? "Course disabled." : "Course enabled.";
+
+      showNotif(actionText, "success");
       await fetchCourses();
 
     } catch (error) {
-      alert(error.message);
+      showNotif(error.message || "Failed to update course status.", "error");
     }
   }
-
 });
-
 
 function logout() {
   localStorage.removeItem("token");

@@ -73,13 +73,13 @@ form.addEventListener("submit", async (e) => {
   const data = await enrollRes.json();
 
   if (enrollRes.ok) {
-    alert("Successfully enrolled!");
-    popup.classList.add("hidden");
-    form.reset();
-    await fetchEnrolledCourses();
-  } else {
-    alert(data.message);
-  }
+  showNotif("Successfully enrolled!", "success");
+  popup.classList.add("hidden");
+  form.reset();
+  await fetchEnrolledCourses();
+} else {
+  showNotif(data.message || "Enrollment failed", "error");
+}
 });
 
 // ----- FETCH ENROLLED COURSES -----
@@ -116,16 +116,20 @@ coursesBody.addEventListener("click", async (e) => {
   const id = e.target.dataset.id;
 
   if (e.target.classList.contains("remove-btn")) {
-    const ok = confirm("Remove this course?");
-    if (!ok) return;
-
+  showConfirm("Remove this course?", async () => {
     const res = await fetch(`${BASE_URL}/courses/${id}/enroll`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    if (res.ok) await fetchEnrolledCourses();
-  }
+    if (res.ok) {
+      showNotif("Course removed", "success");
+      await fetchEnrolledCourses();
+    } else {
+      showNotif("Failed to remove course", "error");
+    }
+  });
+}
 
   if (e.target.classList.contains("open-btn")) {
     window.location.href = `student-assessments.html?courseId=${id}`;
