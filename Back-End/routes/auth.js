@@ -84,4 +84,67 @@ router.post("/login", async (req, res) => {
 
 });
 
+// GET current user profile
+router.get("/me", protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// UPDATE profile (name + email)
+router.put("/me", protect, async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ message: "Name and email are required" });
+    }
+
+    const existing = await User.findOne({ email, _id: { $ne: req.user.userId } });
+    if (existing) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    const updated = await User.findByIdAndUpdate(
+      req.user.userId,
+      { name, email },
+      { new: true }
+    ).select("-password");
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// UPDATE password
+router.put("/me/password", protect, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "New password must be 6+ characters" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;

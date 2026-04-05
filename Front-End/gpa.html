@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseMate - GPA Dashboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="stylesheet" href="css/gpa.css">
+        <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <ul>
+        <li class="left">
+            <a href="student-dashboard.html"><span class="material-symbols-outlined">school</span></a>
+            <a href="student-dashboard.html" id="title"><h3>CourseMate</h3></a>
+        </li>
+
+        <li class="center">
+            <a href="student-dashboard.html">Dashboard</a>
+            <a href="student-courses.html">Courses</a>
+            <a href="student-assessments.html">Assessments</a>
+            <a href="gpa.html" class="active">GPA</a>
+        </li>
+
+        <li id="drop-down-menu" class="profile-menu">
+            <span class="material-symbols-outlined profile-icon">account_circle</span>
+            <div class="profile-dropdown">
+                <a href="profile.html">Profile</a>
+                <a href="gpa.html">My GPA</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </li>
+    </ul>
+</nav>
+
+<main class="container">
+    <div class="page-header">
+        <h1>
+            <span class="material-symbols-outlined">calculate</span>
+            GPA Dashboard
+        </h1>
+        <p>Track your academic performance and course grades</p>
+    </div>
+
+    <div id="gpaContent">
+        <div class="loading">
+            <span class="material-symbols-outlined loading-spinner">hourglass_empty</span>
+            <p>Loading your GPA data...</p>
+        </div>
+    </div>
+</main>
+
+<script src="js/gpa.js"></script>
+    <script src="js/theme.js"></script>
+    <button class="theme-toggle" id="themeToggle">Dark Mode</button>
+
+</body>
+</html>

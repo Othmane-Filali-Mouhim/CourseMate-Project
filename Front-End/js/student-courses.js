@@ -56,12 +56,11 @@ form.addEventListener("submit", async (e) => {
   );
 
   if (!match) {
-    alert("No course found matching that code, name, and term. Please check your details.");
-    return;
+  showNotif("No course found matching that code, name, and term.", "error");    return;
   }
 
   if (enrolledCourses.some(c => c._id === match._id)) {
-    alert("You are already enrolled in this course.");
+    showNotif("You are already enrolled in this course.", "warning");
     return;
   }
 

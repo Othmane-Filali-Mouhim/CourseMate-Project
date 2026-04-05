@@ -14,15 +14,20 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
   });
 
   // Read the response from backend
-  const data = await response.json();
+const data = await response.json();
 
-  if (response.ok) {
-    alert("Account created successfully!");
-    window.location.href = "login.html";
-  } else {
-    // Show error message on page
+if (response.ok) {
+    const errorMsg = document.getElementById("error-message");
+    errorMsg.textContent = "Account created successfully! Redirecting...";
+    errorMsg.style.color = "green";
+    errorMsg.style.display = "block";
+
+    setTimeout(() => {
+        window.location.href = "login.html";
+    }, 2500);
+} else {
     const errorMsg = document.getElementById("error-message");
     errorMsg.textContent = data.message;
     errorMsg.style.display = "block";
-  }
+}
 });

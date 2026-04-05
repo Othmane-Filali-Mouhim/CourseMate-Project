@@ -1,7 +1,3 @@
-/* ─── CourseMate Theme System ─────────────────────────
-   Only dark mode overrides are defined here.
-   Light mode = your original CSS unchanged.
-──────────────────────────────────────────────────── */
 
 /* ===== BODY ===== */
 [data-theme="dark"] body {
@@ -262,3 +258,27 @@
     background-color: #38bdf8;
     color: white;
 }
+
+.notif {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+  max-width: 320px;
+}
+
+.notif.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notif-success { background-color: #059669; }
+.notif-error   { background-color: #DC2626; }
+.notif-warning { background-color: #D97706; }
