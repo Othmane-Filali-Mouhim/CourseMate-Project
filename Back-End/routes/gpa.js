@@ -30,11 +30,11 @@ router.get("/", protect, async (req, res) => {
     // Calculate GPA for each course
     for (const course of courses) {
       // Get all assessments for this course that are completed
-      const assessments = await Assessment.find({
-        course: course._id,
-        status: "completed",
-        isTemplate: false
-      });
+     const assessments = await Assessment.find({
+  course: course._id,
+  isTemplate: false,
+  earnedMarks: { $ne: null }
+});
 
       let courseTotalMarks = 0;
       let courseEarnedMarks = 0;
